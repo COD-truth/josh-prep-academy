@@ -1,4 +1,6 @@
 import { useLang, translations as T, t, type Lang } from "@/lib/i18n";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-context";
 import drJosh from "@/assets/dr-josh.jpg";
 import {
   Sigma, Atom, BookOpen, Languages, Stethoscope, Brain,
@@ -56,6 +58,7 @@ function LangSwitch({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
 }
 
 function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const { user } = useAuth();
   return (
     <nav className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -68,10 +71,15 @@ function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
         </div>
         <div className="flex items-center gap-3">
           <LangSwitch lang={lang} setLang={setLang} />
-          <a href="#booking" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:opacity-95 transition-opacity">
-            {t(T.nav.book, lang)}
-            <ArrowRight className="size-4" />
-          </a>
+          {user ? (
+            <Link to="/dashboard" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:opacity-95 transition-opacity">
+              {lang === "fr" ? "Mon espace" : "Dashboard"} <ArrowRight className="size-4" />
+            </Link>
+          ) : (
+            <Link to="/auth" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:opacity-95 transition-opacity">
+              {lang === "fr" ? "Se connecter" : "Sign in"} <ArrowRight className="size-4" />
+            </Link>
+          )}
         </div>
       </div>
     </nav>
@@ -314,12 +322,12 @@ function ExamBank({ lang }: { lang: Lang }) {
               </div>
             </div>
           ))}
-          <a href="#booking" className="flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-primary/30 bg-card p-6 hover:bg-primary-soft/40 transition-colors">
+          <Link to="/auth" className="flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-primary/30 bg-card p-6 hover:bg-primary-soft/40 transition-colors">
             <p className="font-medium text-muted-foreground">{t(T.exams.sub, lang)}</p>
             <span className="inline-flex items-center gap-2 font-semibold text-primary whitespace-nowrap">
               {t(T.exams.unlock, lang)} <ArrowRight className="size-4" />
             </span>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
