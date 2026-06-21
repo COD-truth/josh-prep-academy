@@ -14,16 +14,245 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exam_papers: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          meta: string | null
+          subject: string
+          title: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          meta?: string | null
+          subject: string
+          title: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          meta?: string | null
+          subject?: string
+          title?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      exam_papers_public: {
+        Row: {
+          id: string
+          meta: string | null
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          id?: string
+          meta?: string | null
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          id?: string
+          meta?: string | null
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_xaf: number
+          created_at: string
+          id: string
+          notes: string | null
+          phone: string
+          plan_id: string
+          provider: string
+          status: string
+          transaction_ref: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount_xaf: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          phone: string
+          plan_id: string
+          provider: string
+          status?: string
+          transaction_ref: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount_xaf?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          plan_id?: string
+          provider?: string
+          status?: string
+          transaction_ref?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          duration_days: number
+          id: string
+          name_en: string
+          name_fr: string
+          price_xaf: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          duration_days: number
+          id?: string
+          name_en: string
+          name_fr: string
+          price_xaf: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          duration_days?: number
+          id?: string
+          name_en?: string
+          name_fr?: string
+          price_xaf?: number
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          plan_id: string
+          starts_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          plan_id: string
+          starts_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          plan_id?: string
+          starts_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_active_subscription: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "student" | "tutor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +379,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "student", "tutor"],
+    },
   },
 } as const
