@@ -57,17 +57,17 @@ function LangSwitch({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
   );
 }
 
-function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const { user } = useAuth();
   return (
     <nav className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <Logo />
         <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-muted-foreground">
-          <a href="#subjects" className="hover:text-foreground transition-colors">{t(T.nav.subjects, lang)}</a>
-          <a href="#tutors" className="hover:text-foreground transition-colors">{t(T.nav.tutors, lang)}</a>
-          <a href="#exams" className="hover:text-foreground transition-colors">{t(T.nav.exams, lang)}</a>
-          <a href="#testimonials" className="hover:text-foreground transition-colors">{t(T.nav.testimonials, lang)}</a>
+          <Link to="/cours" className="hover:text-foreground transition-colors">{lang === "fr" ? "Cours" : "Courses"}</Link>
+          <Link to="/tarifs" className="hover:text-foreground transition-colors">{lang === "fr" ? "Tarifs" : "Pricing"}</Link>
+          <Link to="/banque-epreuves" className="hover:text-foreground transition-colors">{t(T.nav.exams, lang)}</Link>
+          <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
         </div>
         <div className="flex items-center gap-3">
           <LangSwitch lang={lang} setLang={setLang} />
@@ -152,7 +152,7 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return <span className="text-xs font-bold tracking-[0.18em] text-primary uppercase">{children}</span>;
 }
 
-function Subjects({ lang }: { lang: Lang }) {
+export function Subjects({ lang }: { lang: Lang }) {
   const icons = [Sigma, Atom, BookOpen, Languages, Stethoscope, Brain];
   return (
     <section id="subjects" className="py-20 lg:py-28">
@@ -182,7 +182,7 @@ function Subjects({ lang }: { lang: Lang }) {
   );
 }
 
-function Booking({ lang }: { lang: Lang }) {
+export function Booking({ lang }: { lang: Lang }) {
   const days = ["L", "M", "M", "J", "V", "S", "D"];
   const dates = Array.from({ length: 35 }, (_, i) => i - 2);
   const slots = ["09:00", "11:30", "14:00", "16:30"];
@@ -256,7 +256,7 @@ function Booking({ lang }: { lang: Lang }) {
   );
 }
 
-function Tutors({ lang }: { lang: Lang }) {
+export function Tutors({ lang }: { lang: Lang }) {
   const tutors = [
     { name: "Sarah Bakari", role: { fr: "ENS Lyon · Mathématiques", en: "ENS Lyon · Mathematics" }, init: "SB" },
     { name: "Marc-Antoine N.", role: { fr: "Polytechnique · Physique-Chimie", en: "Polytechnique · Physics-Chem" }, init: "MA" },
@@ -292,7 +292,7 @@ function Tutors({ lang }: { lang: Lang }) {
   );
 }
 
-function ExamBank({ lang }: { lang: Lang }) {
+export function ExamBank({ lang }: { lang: Lang }) {
   const items = [
     { title: "Concours ENSPY 2024 — Mathématiques", meta: "PDF · 15 pages · Corrigé Dr. Josh" },
     { title: "FMSB CUSS 2023 — Biologie & Chimie", meta: "QCM · 80 questions · Explications" },
@@ -334,7 +334,7 @@ function ExamBank({ lang }: { lang: Lang }) {
   );
 }
 
-function Payment({ lang }: { lang: Lang }) {
+export function Payment({ lang }: { lang: Lang }) {
   return (
     <section className="py-20 lg:py-28">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
@@ -422,7 +422,7 @@ function FinalCTA({ lang }: { lang: Lang }) {
   );
 }
 
-function Footer({ lang }: { lang: Lang }) {
+export function Footer({ lang }: { lang: Lang }) {
   return (
     <footer className="bg-secondary text-secondary-foreground py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -461,7 +461,7 @@ function Footer({ lang }: { lang: Lang }) {
   );
 }
 
-function WhatsAppFab() {
+export function WhatsAppFab() {
   return (
     <a
       href="https://wa.me/237600000000"
