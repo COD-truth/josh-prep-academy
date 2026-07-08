@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as CoursRouteImport } from './routes/cours'
+import { Route as BanqueEpreuvesRouteImport } from './routes/banque-epreuves'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,11 @@ const TarifsRoute = TarifsRouteImport.update({
 const CoursRoute = CoursRouteImport.update({
   id: '/cours',
   path: '/cours',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BanqueEpreuvesRoute = BanqueEpreuvesRouteImport.update({
+  id: '/banque-epreuves',
+  path: '/banque-epreuves',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -67,6 +73,7 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/cours': typeof CoursRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/cours': typeof CoursRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/cours': typeof CoursRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/banque-epreuves'
     | '/cours'
     | '/tarifs'
     | '/admin'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/banque-epreuves'
     | '/cours'
     | '/tarifs'
     | '/admin'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/banque-epreuves'
     | '/cours'
     | '/tarifs'
     | '/_authenticated/admin'
@@ -134,6 +146,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BanqueEpreuvesRoute: typeof BanqueEpreuvesRoute
   CoursRoute: typeof CoursRoute
   TarifsRoute: typeof TarifsRoute
 }
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       path: '/cours'
       fullPath: '/cours'
       preLoaderRoute: typeof CoursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/banque-epreuves': {
+      id: '/banque-epreuves'
+      path: '/banque-epreuves'
+      fullPath: '/banque-epreuves'
+      preLoaderRoute: typeof BanqueEpreuvesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -227,6 +247,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BanqueEpreuvesRoute: BanqueEpreuvesRoute,
   CoursRoute: CoursRoute,
   TarifsRoute: TarifsRoute,
 }
