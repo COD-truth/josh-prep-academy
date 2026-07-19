@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarifsRouteImport } from './routes/tarifs'
+import { Route as MatieresRouteImport } from './routes/matieres'
 import { Route as CoursRouteImport } from './routes/cours'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BanqueEpreuvesRouteImport } from './routes/banque-epreuves'
@@ -24,6 +25,11 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 const TarifsRoute = TarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatieresRoute = MatieresRouteImport.update({
+  id: '/matieres',
+  path: '/matieres',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursRoute = CoursRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/banque-epreuves': typeof BanqueEpreuvesRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/banque-epreuves'
     | '/contact'
     | '/cours'
+    | '/matieres'
     | '/tarifs'
     | '/admin'
     | '/dashboard'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/banque-epreuves'
     | '/contact'
     | '/cours'
+    | '/matieres'
     | '/tarifs'
     | '/admin'
     | '/dashboard'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/banque-epreuves'
     | '/contact'
     | '/cours'
+    | '/matieres'
     | '/tarifs'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   BanqueEpreuvesRoute: typeof BanqueEpreuvesRoute
   ContactRoute: typeof ContactRoute
   CoursRoute: typeof CoursRoute
+  MatieresRoute: typeof MatieresRoute
   TarifsRoute: typeof TarifsRoute
 }
 
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/tarifs'
       fullPath: '/tarifs'
       preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matieres': {
+      id: '/matieres'
+      path: '/matieres'
+      fullPath: '/matieres'
+      preLoaderRoute: typeof MatieresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cours': {
@@ -270,18 +290,9 @@ const rootRouteChildren: RootRouteChildren = {
   BanqueEpreuvesRoute: BanqueEpreuvesRoute,
   ContactRoute: ContactRoute,
   CoursRoute: CoursRoute,
+  MatieresRoute: MatieresRoute,
   TarifsRoute: TarifsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
