@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string | null
+          created_at: string
+          ends_at: string
+          format: Database["public"]["Enums"]["booking_format"]
+          id: string
+          level: string
+          notes: string | null
+          payment_id: string | null
+          price_fcfa: number
+          starts_at: string
+          status: Database["public"]["Enums"]["booking_status"]
+          student_id: string
+          subject: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          ends_at: string
+          format?: Database["public"]["Enums"]["booking_format"]
+          id?: string
+          level: string
+          notes?: string | null
+          payment_id?: string | null
+          price_fcfa: number
+          starts_at: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          student_id: string
+          subject: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          ends_at?: string
+          format?: Database["public"]["Enums"]["booking_format"]
+          id?: string
+          level?: string
+          notes?: string | null
+          payment_id?: string | null
+          price_fcfa?: number
+          starts_at?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          student_id?: string
+          subject?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_papers: {
         Row: {
           created_at: string
@@ -216,6 +285,95 @@ export type Database = {
           },
         ]
       }
+      tutor_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          tutor_id: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          tutor_id: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          tutor_id?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutor_availability_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          full_name: string
+          hourly_rate_fcfa: number
+          id: string
+          is_active: boolean
+          languages: string[]
+          levels: string[]
+          photo_url: string | null
+          rating: number | null
+          subjects: string[]
+          title: string | null
+          updated_at: string
+          user_id: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          hourly_rate_fcfa?: number
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          levels?: string[]
+          photo_url?: string | null
+          rating?: number | null
+          subjects?: string[]
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          hourly_rate_fcfa?: number
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          levels?: string[]
+          photo_url?: string | null
+          rating?: number | null
+          subjects?: string[]
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -253,6 +411,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "student" | "tutor"
+      booking_format: "home" | "online" | "office"
+      booking_status: "pending" | "confirmed" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -381,6 +541,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "student", "tutor"],
+      booking_format: ["home", "online", "office"],
+      booking_status: ["pending", "confirmed", "completed", "cancelled"],
     },
   },
 } as const
