@@ -65,6 +65,7 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
         <Logo />
         <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-muted-foreground">
           <Link to="/cours" className="hover:text-foreground transition-colors">{lang === "fr" ? "Cours" : "Courses"}</Link>
+          <Link to="/matieres" className="hover:text-foreground transition-colors">{lang === "fr" ? "Matières" : "Subjects"}</Link>
           <Link to="/tarifs" className="hover:text-foreground transition-colors">{lang === "fr" ? "Tarifs" : "Pricing"}</Link>
           <Link to="/banque-epreuves" className="hover:text-foreground transition-colors">{t(T.nav.exams, lang)}</Link>
           <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
@@ -89,39 +90,39 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
 function Hero({ lang }: { lang: Lang }) {
   return (
     <header className="relative overflow-hidden">
-      <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--gradient-soft)" }} />
-      <div aria-hidden className="absolute -top-32 -right-32 size-[480px] rounded-full bg-primary/10 blur-3xl -z-10" />
+      <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "linear-gradient(135deg, #0C4A6E 0%, #164E63 100%)" }} />
+      <div aria-hidden className="absolute -top-32 -right-32 size-[480px] rounded-full bg-white/10 blur-3xl -z-10" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 lg:py-28 grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-card ring-1 ring-border px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-70" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
             </span>
             {t(T.hero.badge, lang)}
           </span>
-          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] text-balance">
+          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] text-balance text-white">
             {t(T.hero.title1, lang)}{" "}
-            <span className="italic font-display text-primary">{t(T.hero.title2, lang)}</span>.
+            <span className="italic font-display text-amber-300">{t(T.hero.title2, lang)}</span>.
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-muted-foreground leading-relaxed text-pretty">
+          <p className="mt-6 max-w-xl text-lg text-white/80 leading-relaxed text-pretty">
             {t(T.hero.subtitle, lang)}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#booking" className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:opacity-95 transition-opacity">
+            <Link to="/cours" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-slate-900 shadow-[var(--shadow-elegant)] hover:bg-amber-300 transition-colors">
               {t(T.hero.cta1, lang)} <ArrowRight className="size-4" />
-            </a>
-            <a href="#exams" className="inline-flex items-center gap-2 rounded-xl bg-card ring-1 ring-border px-6 py-3.5 font-semibold hover:bg-muted transition-colors">
+            </Link>
+            <Link to="/banque-epreuves" className="inline-flex items-center gap-2 rounded-xl bg-white/10 ring-1 ring-white/25 text-white px-6 py-3.5 font-semibold hover:bg-white/20 transition-colors backdrop-blur">
               {t(T.hero.cta2, lang)}
-            </a>
+            </Link>
           </div>
-          <div className="mt-10 flex flex-wrap gap-6 items-center text-sm text-muted-foreground">
-            <div className="flex items-center gap-2"><ShieldCheck className="size-4 text-[var(--color-success)]" /> Mobile Money · Orange · MTN</div>
-            <div className="flex items-center gap-2"><GraduationCap className="size-4 text-primary" /> Google Classroom</div>
+          <div className="mt-10 flex flex-wrap gap-6 items-center text-sm text-white/70">
+            <div className="flex items-center gap-2"><ShieldCheck className="size-4 text-emerald-400" /> Mobile Money · Orange · MTN</div>
+            <div className="flex items-center gap-2"><GraduationCap className="size-4 text-amber-300" /> Google Classroom</div>
           </div>
         </div>
         <div className="relative">
-          <div className="aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-border shadow-[var(--shadow-elegant)] bg-card">
+          <div className="aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-white/20 shadow-[var(--shadow-elegant)] bg-card">
             <img src={drJosh} alt="Dr. Josh" width={896} height={1120} className="size-full object-cover" />
           </div>
           <div className="absolute -bottom-6 -left-6 max-w-[260px] rounded-2xl bg-card p-5 ring-1 ring-border shadow-[var(--shadow-soft)]">
