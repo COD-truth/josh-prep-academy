@@ -436,6 +436,7 @@ export function Footer({ lang }: { lang: Lang }) {
             <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">{t(T.footer.services, lang)}</h4>
             <ul className="space-y-3 text-sm text-white/60">
               <li><Link to="/cours" className="hover:text-white">{lang === "fr" ? "Cours" : "Courses"}</Link></li>
+              <li><Link to="/matieres" className="hover:text-white">{lang === "fr" ? "Matières" : "Subjects"}</Link></li>
               <li><Link to="/tarifs" className="hover:text-white">{lang === "fr" ? "Tarifs" : "Pricing"}</Link></li>
               <li><Link to="/banque-epreuves" className="hover:text-white">{t(T.nav.exams, lang)}</Link></li>
               <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
