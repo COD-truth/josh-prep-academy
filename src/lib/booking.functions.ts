@@ -187,9 +187,7 @@ export const payForBooking = createServerFn({ method: "POST" })
         transaction_ref: data.transactionRef,
         amount_xaf: booking.price_fcfa,
         status: "pending",
-        // plan_id is NOT NULL in schema; reuse a placeholder is not allowed. Use null via cast if column allows;
-        // otherwise this branch requires a booking-only payment schema. We fall back to any active plan sentinel:
-        plan_id: (await supabase.from("subscription_plans").select("id").limit(1).single()).data!.id,
+        plan_id: null,
       })
       .select("id")
       .single();
