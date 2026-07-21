@@ -145,7 +145,7 @@ export type Database = {
           id: string
           notes: string | null
           phone: string
-          plan_id: string
+          plan_id: string | null
           provider: string
           status: string
           transaction_ref: string
@@ -160,7 +160,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone: string
-          plan_id: string
+          plan_id?: string | null
           provider: string
           status?: string
           transaction_ref: string
@@ -175,7 +175,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string
-          plan_id?: string
+          plan_id?: string | null
           provider?: string
           status?: string
           transaction_ref?: string
