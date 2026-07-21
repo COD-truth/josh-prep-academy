@@ -20,7 +20,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicWebhooksMobileMoneyRouteImport } from './routes/api/public/webhooks/mobile-money'
 
 const TarifsRoute = TarifsRouteImport.update({
   id: '/tarifs',
@@ -76,11 +78,22 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBookRoute = AuthenticatedBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicWebhooksMobileMoneyRoute =
+  ApiPublicWebhooksMobileMoneyRouteImport.update({
+    id: '/api/public/webhooks/mobile-money',
+    path: '/api/public/webhooks/mobile-money',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,9 +104,11 @@ export interface FileRoutesByFullPath {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,9 +119,11 @@ export interface FileRoutesByTo {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,9 +136,11 @@ export interface FileRoutesById {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
+  '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,9 +153,11 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/admin'
+    | '/book'
     | '/dashboard'
     | '/exams'
     | '/subscribe'
+    | '/api/public/webhooks/mobile-money'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -147,9 +168,11 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/admin'
+    | '/book'
     | '/dashboard'
     | '/exams'
     | '/subscribe'
+    | '/api/public/webhooks/mobile-money'
   id:
     | '__root__'
     | '/'
@@ -161,9 +184,11 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/_authenticated/admin'
+    | '/_authenticated/book'
     | '/_authenticated/dashboard'
     | '/_authenticated/exams'
     | '/_authenticated/subscribe'
+    | '/api/public/webhooks/mobile-money'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -175,6 +200,7 @@ export interface RootRouteChildren {
   CoursRoute: typeof CoursRoute
   MatieresRoute: typeof MatieresRoute
   TarifsRoute: typeof TarifsRoute
+  ApiPublicWebhooksMobileMoneyRoute: typeof ApiPublicWebhooksMobileMoneyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -256,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/book': {
+      id: '/_authenticated/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof AuthenticatedBookRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -263,11 +296,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/webhooks/mobile-money': {
+      id: '/api/public/webhooks/mobile-money'
+      path: '/api/public/webhooks/mobile-money'
+      fullPath: '/api/public/webhooks/mobile-money'
+      preLoaderRoute: typeof ApiPublicWebhooksMobileMoneyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBookRoute: typeof AuthenticatedBookRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
   AuthenticatedSubscribeRoute: typeof AuthenticatedSubscribeRoute
@@ -275,6 +316,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBookRoute: AuthenticatedBookRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
   AuthenticatedSubscribeRoute: AuthenticatedSubscribeRoute,
@@ -292,17 +334,8 @@ const rootRouteChildren: RootRouteChildren = {
   CoursRoute: CoursRoute,
   MatieresRoute: MatieresRoute,
   TarifsRoute: TarifsRoute,
+  ApiPublicWebhooksMobileMoneyRoute: ApiPublicWebhooksMobileMoneyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

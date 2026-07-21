@@ -141,6 +141,7 @@ export const reviewPayment = createServerFn({ method: "POST" })
       .maybeSingle();
     if (payErr || !pay) throw new Error("Payment not found");
     if (pay.status !== "pending") throw new Error("Already processed");
+    if (!pay.plan_id) throw new Error("Payment has no plan attached");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
