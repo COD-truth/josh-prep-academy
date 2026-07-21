@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const TarifsRoute = TarifsRouteImport.update({
@@ -76,6 +77,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBookRoute = AuthenticatedBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/matieres': typeof MatieresRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/admin'
+    | '/book'
     | '/dashboard'
     | '/exams'
     | '/subscribe'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/admin'
+    | '/book'
     | '/dashboard'
     | '/exams'
     | '/subscribe'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/matieres'
     | '/tarifs'
     | '/_authenticated/admin'
+    | '/_authenticated/book'
     | '/_authenticated/dashboard'
     | '/_authenticated/exams'
     | '/_authenticated/subscribe'
@@ -256,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/book': {
+      id: '/_authenticated/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof AuthenticatedBookRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -268,6 +287,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBookRoute: typeof AuthenticatedBookRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
   AuthenticatedSubscribeRoute: typeof AuthenticatedSubscribeRoute
@@ -275,6 +295,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBookRoute: AuthenticatedBookRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
   AuthenticatedSubscribeRoute: AuthenticatedSubscribeRoute,
