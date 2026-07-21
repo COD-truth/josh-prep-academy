@@ -140,6 +140,7 @@ export type Database = {
       payments: {
         Row: {
           amount_xaf: number
+          booking_id: string | null
           created_at: string
           id: string
           notes: string | null
@@ -154,6 +155,7 @@ export type Database = {
         }
         Insert: {
           amount_xaf: number
+          booking_id?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -168,6 +170,7 @@ export type Database = {
         }
         Update: {
           amount_xaf?: number
+          booking_id?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -181,6 +184,13 @@ export type Database = {
           verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_plan_id_fkey"
             columns: ["plan_id"]
@@ -395,6 +405,33 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          created_at: string
+          external_id: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -406,6 +443,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      tutor_has_conflict: {
+        Args: { _ends_at: string; _starts_at: string; _tutor_id: string }
         Returns: boolean
       }
     }
