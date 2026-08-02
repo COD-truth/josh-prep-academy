@@ -78,14 +78,13 @@ export const Route = createFileRoute("/api/public/webhooks/mobile-money")({
             .eq("id", payment.booking_id);
         } else if (payment.plan_id) {
           const days = (payment.plan as { duration_days: number } | null)?.duration_days ?? 30;
-          const expires = new Date(now.getTime() + days * 86400000);
-          await supabaseAdmin.from("subscriptions").insert({
-            user_id: payment.user_id,
-            plan_id: payment.plan_id,
-            status: "active",
-            starts_at: now.toISOString(),
-            expires_at: expires.toISOString(),
+          // Idempotent: extends an existing active subscription instead of duplicating it.
+          const { error: grantErr } = await supabaseAdmin.rpc("grant_subscription", {
+            _user_id: payment.user_id,
+            _plan_id: payment.plan_id,
+            _days: days,
           });
+          if (grantErr) return new Response("Grant failed", { status: 500 });
         }
 
         await supabaseAdmin

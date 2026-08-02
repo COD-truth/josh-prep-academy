@@ -155,14 +155,11 @@ export const reviewPayment = createServerFn({ method: "POST" })
 
     const days = (pay.plan as { duration_days: number } | null)?.duration_days ?? 30;
     const now = new Date();
-    const expires = new Date(now.getTime() + days * 86400000);
 
-    const { error: subErr } = await supabaseAdmin.from("subscriptions").insert({
-      user_id: pay.user_id,
-      plan_id: pay.plan_id,
-      status: "active",
-      starts_at: now.toISOString(),
-      expires_at: expires.toISOString(),
+    const { error: subErr } = await supabaseAdmin.rpc("grant_subscription", {
+      _user_id: pay.user_id,
+      _plan_id: pay.plan_id,
+      _days: days,
     });
     if (subErr) throw subErr;
 
