@@ -78,16 +78,29 @@ export const translations = {
     title: { fr: "Ils ont réussi avec Josh & Co", en: "They succeeded with Josh & Co" },
     items: [
       {
-        fr: { q: "Grâce au Dr. Josh, j'ai comblé mes lacunes en physique et intégré l'école de mes rêves.", a: "Yasmine K. — Admise INPHB" },
-        en: { q: "Thanks to Dr. Josh I closed my physics gaps and got into my dream school.", a: "Yasmine K. — Admitted to INPHB" },
+        level: "CEP",
+        fr: { q: "Je fais partie de ceux pour qui tout était flou au départ : je ne comprenais presque rien en classe et je n'osais plus poser de questions. Avec Josh & Co, on a repris les bases une par une, calmement, jusqu'à ce que tout devienne clair. J'ai obtenu mon CEP.", a: "Jonathan — CEP" },
+        en: { q: "I was one of those students for whom everything was blurry at first: I understood almost nothing in class and no longer dared to ask questions. With Josh & Co we rebuilt the basics one by one, calmly, until everything became clear. I passed my CEP.", a: "Jonathan — CEP" },
       },
       {
-        fr: { q: "La banque d'épreuves est une mine d'or. Les corrections sont d'une clarté remarquable.", a: "Moussa D. — Prépa MPSI" },
-        en: { q: "The exam bank is a goldmine. The corrections are remarkably clear.", a: "Moussa D. — MPSI prep" },
+        level: "BEPC",
+        fr: { q: "Comme Jonathan, j'avais un passif scolaire très compliqué et je pensais sincèrement que je n'y arriverais jamais. Le suivi régulier et les annales corrigées ont tout changé : j'ai décroché mon BEPC avec des notes que je n'imaginais pas.", a: "Yang — BEPC" },
+        en: { q: "Like Jonathan, I had a very difficult school record and honestly believed I would never make it. Regular follow-up and the corrected past papers changed everything: I passed my BEPC with grades I never imagined.", a: "Yang — BEPC" },
       },
       {
-        fr: { q: "Le système de réservation est intuitif et Google Classroom facilite vraiment le suivi.", a: "Alice T. — Concours Médecine" },
-        en: { q: "Booking is intuitive and Google Classroom makes follow-up so smooth.", a: "Alice T. — Medical school exam" },
+        level: "Terminale D",
+        fr: { q: "J'avais déjà un très bon niveau scolaire, mais il me manquait la méthode pour viser l'excellence. Les séances ciblées en maths et en physique-chimie m'ont permis de gagner en rigueur et de finir major de ma classe.", a: "Evelyn — Terminale D" },
+        en: { q: "I already had a very good level, but I lacked the method to aim for excellence. Targeted maths and physics-chemistry sessions sharpened my rigour and I finished top of my class.", a: "Evelyn — Terminale D" },
+      },
+      {
+        level: "Grade 5",
+        fr: { q: "Pour moi, la situation était extrême : je redoublais et je perdais confiance. Les cours à domicile, patients et structurés, m'ont remis sur les rails. Aujourd'hui je participe en classe et mes résultats suivent.", a: "Prince — Grade 5" },
+        en: { q: "For me the situation was extreme: I was repeating the year and losing confidence. Patient, structured home lessons put me back on track. Today I take part in class and my results follow.", a: "Prince — Grade 5" },
+      },
+      {
+        level: "Upper Sixth",
+        fr: { q: "Je devais consolider des acquis fragiles avant le GCE A Level, avec très peu de temps. Le plan de révision et la banque d'épreuves m'ont donné exactement ce qu'il fallait travailler. Résultat : mes A Levels en poche.", a: "Kévin — Upper Sixth" },
+        en: { q: "I had to consolidate fragile foundations before the GCE A Level, with very little time. The revision plan and the exam bank showed me exactly what to work on. Result: I got my A Levels.", a: "Kévin — Upper Sixth" },
       },
     ],
   },
