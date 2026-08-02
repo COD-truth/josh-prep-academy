@@ -2,6 +2,7 @@ import { useLang, translations as T, t, type Lang } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import drJosh from "@/assets/dr-josh.jpg";
+import { SuccessStats } from "@/components/site/SuccessStats";
 import {
   Sigma, Atom, BookOpen, Languages, Stethoscope, Brain,
   Calendar, Lock, Check, MessageCircle, Star, GraduationCap,
@@ -14,6 +15,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <Nav lang={lang} setLang={setLang} />
       <Hero lang={lang} />
+      <SuccessStats lang={lang} />
       <Subjects lang={lang} />
       <Booking lang={lang} />
       <Tutors lang={lang} />
@@ -367,13 +369,13 @@ function Testimonials({ lang }: { lang: Lang }) {
           <SectionEyebrow>{t(T.testimonials.eyebrow, lang)}</SectionEyebrow>
           <h2 className="mt-3 text-3xl sm:text-4xl font-semibold">{t(T.testimonials.title, lang)}</h2>
         </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-5">
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           {T.testimonials.items.map((it, i) => (
-            <figure key={i} className="rounded-2xl bg-card p-7 ring-1 ring-border">
+            <figure key={i} className="flex flex-col rounded-2xl bg-card p-7 ring-1 ring-border">
               <div className="flex gap-0.5 text-[var(--color-success)]">
                 {[0, 1, 2, 3, 4].map((s) => <Star key={s} className="size-4 fill-current" />)}
               </div>
-              <blockquote className="mt-5 font-display italic text-lg leading-relaxed">"{it[lang].q}"</blockquote>
+              <blockquote className="mt-5 flex-1 font-display italic text-base leading-relaxed">"{it[lang].q}"</blockquote>
               <figcaption className="mt-5 text-xs font-bold tracking-wider uppercase text-primary">{it[lang].a}</figcaption>
             </figure>
           ))}
