@@ -60,6 +60,15 @@ export const submitPayment = createServerFn({ method: "POST" })
       .eq("id", data.planId)
       .maybeSingle();
     if (planErr || !plan) throw new Error("Plan not found");
+
+    // Idempotent: the same transaction reference must never create two payments.
+    const { data: existing } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("transaction_ref", data.transactionRef)
+      .maybeSingle();
+    if (existing) return { paymentId: existing.id, duplicate: true as const };
+
     const { data: payment, error } = await supabase
       .from("payments")
       .insert({
@@ -73,8 +82,13 @@ export const submitPayment = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error) throw error;
-    return { paymentId: payment.id };
+    if (error) {
+      if (/duplicate|unique/i.test(error.message)) {
+        throw new Error("Cet identifiant de transaction a déjà été soumis. / This transaction ID was already submitted.");
+      }
+      throw error;
+    }
+    return { paymentId: payment.id, duplicate: false as const };
   });
 
 export const listMyPayments = createServerFn({ method: "GET" })

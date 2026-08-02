@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { FileText, Lock, Search } from "lucide-react";
+import { FileText, Lock, Search, Unlock } from "lucide-react";
 import { type Lang } from "@/lib/i18n";
 import { examPapers, examTypeLabels, type ExamPaper } from "@/lib/site-content";
+import { useAuth } from "@/lib/auth-context";
 
 const ALL = "ALL";
 
@@ -20,6 +21,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 }
 
 export function ExamCatalog({ lang }: { lang: Lang }) {
+  const { user } = useAuth();
   const [type, setType] = useState<string>(ALL);
   const [subject, setSubject] = useState<string>(ALL);
   const [year, setYear] = useState<string>(ALL);
@@ -110,13 +112,19 @@ export function ExamCatalog({ lang }: { lang: Lang }) {
                 </div>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">{lang === "fr" ? p.descFr : p.descEn}</p>
-              <Link
-                to="/exams"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-muted px-4 py-2 text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                <Lock className="size-3.5" />
-                {lang === "fr" ? "Télécharger" : "Download"}
-              </Link>
+              <div className="mt-5 flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                  <Lock className="size-3" />
+                  {lang === "fr" ? "Verrouillé" : "Locked"}
+                </span>
+                <Link
+                  to={user ? "/subscribe" : "/auth"}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity"
+                >
+                  <Unlock className="size-3.5" />
+                  {lang === "fr" ? "Débloquer" : "Unlock"}
+                </Link>
+              </div>
             </article>
           ))}
         </div>
