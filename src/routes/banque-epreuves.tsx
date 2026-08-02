@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav, ExamBank, Footer, WhatsAppFab } from "@/components/site/LandingPage";
+import { ExamCatalog } from "@/components/site/ExamCatalog";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/banque-epreuves")({
@@ -20,6 +21,7 @@ function BanquePage() {
     <div className="min-h-screen bg-background text-foreground">
       <Nav lang={lang} setLang={setLang} />
       <ExamBank lang={lang} />
+      <ExamCatalog lang={lang} />
       <Footer lang={lang} />
       <WhatsAppFab />
     </div>
