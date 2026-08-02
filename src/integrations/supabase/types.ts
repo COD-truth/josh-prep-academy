@@ -437,6 +437,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_subscription: {
+        Args: { _days: number; _plan_id: string; _user_id: string }
+        Returns: string
+      }
       has_active_subscription: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
