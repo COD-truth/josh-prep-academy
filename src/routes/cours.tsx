@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Nav, Subjects, Tutors, Booking, Footer, WhatsAppFab } from "@/components/site/LandingPage";
+import { Nav, Subjects, Booking, Footer, WhatsAppFab } from "@/components/site/LandingPage";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/cours")({
@@ -20,7 +20,6 @@ function CoursPage() {
     <div className="min-h-screen bg-background text-foreground">
       <Nav lang={lang} setLang={setLang} />
       <Subjects lang={lang} />
-      <Tutors lang={lang} />
       <Booking lang={lang} />
       <Footer lang={lang} />
       <WhatsAppFab />

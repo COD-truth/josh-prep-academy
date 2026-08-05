@@ -2,6 +2,7 @@ import { useLang, translations as T, t, type Lang } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import drJosh from "@/assets/dr-josh.jpg";
+import logoImg from "@/assets/logo.webp";
 import { SuccessStats } from "@/components/site/SuccessStats";
 import {
   Sigma, Atom, BookOpen, Languages, Stethoscope, Brain,
@@ -18,7 +19,6 @@ export function LandingPage() {
       <SuccessStats lang={lang} />
       <Subjects lang={lang} />
       <Booking lang={lang} />
-      <Tutors lang={lang} />
       <ExamBank lang={lang} />
       <Payment lang={lang} />
       <Testimonials lang={lang} />
@@ -32,11 +32,8 @@ export function LandingPage() {
 
 function Logo() {
   return (
-    <a href="#" className="flex items-center gap-2.5">
-      <span className="grid size-9 place-items-center rounded-xl bg-[var(--gradient-hero)] text-primary-foreground font-bold text-sm shadow-[var(--shadow-soft)]">
-        J&amp;C
-      </span>
-      <span className="font-display text-lg font-semibold tracking-tight">Josh &amp; Co</span>
+    <a href="#" className="flex items-center">
+      <img src={logoImg} alt="Josh & Co" className="h-10 w-auto" />
     </a>
   );
 }
@@ -91,8 +88,7 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
 
 function Hero({ lang }: { lang: Lang }) {
   return (
-    <header className="relative overflow-hidden">
-      <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "linear-gradient(135deg, #0C4A6E 0%, #164E63 100%)" }} />
+    <header className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0C4A6E 0%, #164E63 100%)" }}>
       <div aria-hidden className="absolute -top-32 -right-32 size-[480px] rounded-full bg-white/10 blur-3xl -z-10" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 lg:py-28 grid lg:grid-cols-2 gap-12 items-center">
         <div>
@@ -259,47 +255,14 @@ export function Booking({ lang }: { lang: Lang }) {
   );
 }
 
-export function Tutors({ lang }: { lang: Lang }) {
-  const tutors = [
-    { name: "Sarah Bakari", role: { fr: "ENS Lyon · Mathématiques", en: "ENS Lyon · Mathematics" }, init: "SB" },
-    { name: "Marc-Antoine N.", role: { fr: "Polytechnique · Physique-Chimie", en: "Polytechnique · Physics-Chem" }, init: "MA" },
-    { name: "Dr. Ibrahim K.", role: { fr: "Sorbonne · Lettres modernes", en: "Sorbonne · Modern Letters" }, init: "IK" },
-    { name: "Alice Mensah", role: { fr: "Cambridge · English & IELTS", en: "Cambridge · English & IELTS" }, init: "AM" },
-  ];
-  return (
-    <section id="tutors" className="py-20 lg:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div className="max-w-xl">
-            <SectionEyebrow>{t(T.tutors.eyebrow, lang)}</SectionEyebrow>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-semibold">{t(T.tutors.title, lang)}</h2>
-            <p className="mt-3 text-muted-foreground">{t(T.tutors.sub, lang)}</p>
-          </div>
-        </div>
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {tutors.map((tu) => (
-            <article key={tu.name} className="rounded-2xl bg-card p-6 ring-1 ring-border hover:shadow-[var(--shadow-soft)] transition-shadow">
-              <div className="grid size-14 place-items-center rounded-2xl bg-[var(--gradient-hero)] text-primary-foreground font-display font-semibold text-lg">
-                {tu.init}
-              </div>
-              <h3 className="mt-5 font-semibold text-lg">{tu.name}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">{t(tu.role, lang)}</p>
-              <div className="mt-4 flex gap-0.5 text-[var(--color-success)]">
-                {[0, 1, 2, 3, 4].map((i) => <Star key={i} className="size-3.5 fill-current" />)}
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+
 
 export function ExamBank({ lang }: { lang: Lang }) {
   const items = [
-    { title: "Concours ENSPY 2024 — Mathématiques", meta: "PDF · 15 pages · Corrigé Dr. Josh" },
-    { title: "FMSB CUSS 2023 — Biologie & Chimie", meta: "QCM · 80 questions · Explications" },
-    { title: "Polytechnique 2022 — Physique I", meta: "PDF · 22 pages · Corrigé détaillé" },
+    { title: "BEPC 2024 — Mathématiques", meta: "PDF · 18 pages · Corrigé Dr. Josh" },
+    { title: "GCE O Level 2023 — Biology", meta: "PDF · 30 questions · Full answer key" },
+    { title: "Probatoire 2023 — Physique-Chimie", meta: "PDF · 20 pages · Corrigé détaillé" },
+    { title: "CEP / FSLC 2024 — Français & English", meta: "PDF · 12 pages · Corrigé complet" },
   ];
   return (
     <section id="exams" className="py-20 lg:py-28 bg-muted/40">
@@ -448,7 +411,7 @@ export function Footer({ lang }: { lang: Lang }) {
             <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">{t(T.footer.contact, lang)}</h4>
             <ul className="space-y-3 text-sm text-white/60">
               <li>contact@joshandco.academy</li>
-              <li>+237 6XX XX XX XX</li>
+              <li>+237 691 91 67 47</li>
               <li>Yaoundé · Abidjan · Dakar</li>
             </ul>
           </div>
@@ -468,7 +431,7 @@ export function Footer({ lang }: { lang: Lang }) {
 export function WhatsAppFab() {
   return (
     <a
-      href="https://wa.me/237600000000"
+      href="https://wa.me/237691916747"
       target="_blank"
       rel="noopener"
       aria-label="WhatsApp"
