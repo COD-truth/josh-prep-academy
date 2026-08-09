@@ -7,8 +7,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Check, Phone } from "lucide-react";
 
-const ORANGE_MERCHANT = "+237 6 90 00 00 00";
-const MTN_MERCHANT = "+237 6 70 00 00 00";
+const ORANGE_MERCHANT = "+237 655 677 313";
+const MTN_MERCHANT = "+237 658 764 216";
 
 export const Route = createFileRoute("/_authenticated/subscribe")({
   head: () => ({ meta: [{ title: "Josh & Co — Abonnement" }] }),
