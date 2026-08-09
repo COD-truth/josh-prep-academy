@@ -200,3 +200,39 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+/** Admin: save exam paper metadata after file upload */
+export const adminSaveExamPaper = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      title: z.string().min(3),
+      title_en: z.string().optional(),
+      subject: z.string().min(1),
+      level: z.string().min(1),
+      year: z.number().int().min(2000).max(2030),
+      language: z.enum(["fr", "en", "both"]),
+      has_solution: z.boolean(),
+      file_url: z.string().url(),
+      page_count: z.number().nullable().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+
+    const { error } = await supabase.from("exam_papers").insert({
+      title: data.title,
+      title_en: data.title_en ?? null,
+      subject: data.subject,
+      level: data.level,
+      year: data.year,
+      language: data.language,
+      has_solution: data.has_solution,
+      file_url: data.file_url,
+      page_count: data.page_count ?? null,
+      is_active: true,
+    } as never);
+    if (error) throw error;
+    return { ok: true };
+  });
