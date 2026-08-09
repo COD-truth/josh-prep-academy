@@ -411,7 +411,7 @@ export function Footer({ lang }: { lang: Lang }) {
             <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">{t(T.footer.contact, lang)}</h4>
             <ul className="space-y-3 text-sm text-white/60">
               <li>joshcollaborateurs@gmail.com</li>
-              <li>+237 691 91 67 47 (WhatsApp)</li>
+              <li>+237 691 91 67 47</li>
               <li>+237 655 677 313</li>
               <li>+237 658 764 216</li>
               <li>Yaoundé, Cameroun</li>
