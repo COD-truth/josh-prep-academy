@@ -1,238 +1,155 @@
-import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { z } from "zod";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyAccess, listExamPapers } from "@/lib/access.functions";
+import { useLang } from "@/lib/i18n";
+import { ArrowLeft, BookLock, Download, FileText, Lock, Home, Loader2, BookOpen } from "lucide-react";
 
-/** Returns the signed-in user's roles + active subscription state. */
-export const getMyAccess = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const [{ data: roles }, { data: subs }, { data: profile }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId),
-      supabase
-        .from("subscriptions")
-        .select("id, status, expires_at, plan:subscription_plans(code, name_fr, name_en)")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .gt("expires_at", new Date().toISOString())
-        .order("expires_at", { ascending: false })
-        .limit(1),
-      supabase.from("profiles").select("full_name, phone").eq("id", userId).maybeSingle(),
-    ]);
-    return {
-      userId,
-      roles: (roles ?? []).map((r) => r.role as string),
-      activeSubscription: subs?.[0] ?? null,
-      profile: profile ?? null,
-    };
+export const Route = createFileRoute("/_authenticated/exams")({
+  head: () => ({ meta: [{ title: "Josh & Co — Banque d'épreuves" }] }),
+  component: ExamsPage,
+});
+
+function ExamsPage() {
+  const { lang } = useLang();
+  const navigate = useNavigate();
+  const fetchAccess = useServerFn(getMyAccess);
+  const fetchPapers = useServerFn(listExamPapers);
+  const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
+
+  const access = useQuery({ queryKey: ["access"], queryFn: () => fetchAccess({}) });
+  const hasAccess = !!access.data?.activeSubscription || (access.data?.roles ?? []).includes("admin");
+
+  const papers = useQuery({
+    queryKey: ["exam-papers"],
+    queryFn: () => fetchPapers({}),
+    enabled: !access.isLoading,
   });
 
-/** Lists exam papers. RLS restricts to subscribers/admins. */
-export const listExamPapers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("exam_papers")
-      .select("id, title, description, subject, year, file_url, meta")
-      .order("year", { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  });
+  return (
+    <div className="min-h-screen bg-muted/30">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold">
+              <ArrowLeft className="size-4" /> {tr("Tableau de bord", "Dashboard")}
+            </Link>
+            <span className="text-muted-foreground/40">|</span>
+            <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Home className="size-4" /> {tr("Accueil", "Home")}
+            </Link>
+          </div>
+          <span className="font-display text-lg font-semibold">Josh &amp; Co</span>
+        </div>
+      </header>
 
-/** Submit a Mobile Money payment for verification. */
-export const submitPayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z
-      .object({
-        planId: z.string().uuid(),
-        provider: z.enum(["orange", "mtn"]),
-        phone: z.string().min(7).max(20),
-        transactionRef: z.string().min(4).max(60),
-      })
-      .parse(d),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: plan, error: planErr } = await supabase
-      .from("subscription_plans")
-      .select("id, price_xaf")
-      .eq("id", data.planId)
-      .maybeSingle();
-    if (planErr || !plan) throw new Error("Plan not found");
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="grid size-12 place-items-center rounded-2xl bg-primary/10">
+            <BookOpen className="size-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold">{tr("Banque d'épreuves", "Exam Bank")}</h1>
+            <p className="mt-1 text-muted-foreground">
+              {tr("Annales, exercices et corrigés — primaire & secondaire.", "Past papers, exercises and answer keys — primary & secondary.")}
+            </p>
+          </div>
+        </div>
 
-    // Idempotent: the same transaction reference must never create two payments.
-    const { data: existing } = await supabase
-      .from("payments")
-      .select("id")
-      .eq("transaction_ref", data.transactionRef)
-      .maybeSingle();
-    if (existing) return { paymentId: existing.id, duplicate: true as const };
+        {/* Loading state */}
+        {(access.isLoading || papers.isLoading) && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
 
-    const { data: payment, error } = await supabase
-      .from("payments")
-      .insert({
-        user_id: userId,
-        plan_id: plan.id,
-        provider: data.provider,
-        phone: data.phone,
-        transaction_ref: data.transactionRef,
-        amount_xaf: plan.price_xaf,
-        status: "pending",
-      })
-      .select("id")
-      .single();
-    if (error) {
-      if (/duplicate|unique/i.test(error.message)) {
-        throw new Error("Cet identifiant de transaction a déjà été soumis. / This transaction ID was already submitted.");
-      }
-      throw error;
-    }
-    return { paymentId: payment.id, duplicate: false as const };
-  });
+        {/* No subscription */}
+        {!access.isLoading && !hasAccess && (
+          <div className="mt-6 rounded-3xl bg-card ring-1 ring-border p-10 text-center">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary-soft text-primary">
+              <BookLock className="size-8" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold">
+              {tr("Accès réservé aux abonnés", "Subscribers only")}
+            </h2>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto">
+              {tr(
+                "Abonnez-vous via Mobile Money pour débloquer toutes les épreuves.",
+                "Subscribe via Mobile Money to unlock all papers."
+              )}
+            </p>
+            <button
+              onClick={() => navigate({ to: "/subscribe" })}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-95"
+            >
+              {tr("Voir les abonnements", "See plans")}
+            </button>
+          </div>
+        )}
 
-export const listMyPayments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("payments")
-      .select("id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, name_en)")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  });
+        {/* Has access but empty */}
+        {hasAccess && !papers.isLoading && (papers.data?.length ?? 0) === 0 && (
+          <div className="mt-6 rounded-3xl bg-card ring-1 ring-border p-10 text-center">
+            <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-muted">
+              <FileText className="size-8 text-muted-foreground" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-muted-foreground">
+              {tr("Aucune épreuve disponible pour le moment", "No papers available yet")}
+            </h2>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto text-sm">
+              {tr(
+                "Les épreuves seront ajoutées très prochainement. Revenez dans quelques heures.",
+                "Papers will be added very soon. Check back in a few hours."
+              )}
+            </p>
+          </div>
+        )}
 
-export const listPlans = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("subscription_plans")
-      .select("id, code, name_fr, name_en, price_xaf, duration_days")
-      .eq("active", true)
-      .order("price_xaf");
-    if (error) throw error;
-    return data ?? [];
-  });
-
-/** Admin: list all payments for review. */
-export const adminListPayments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (!isAdmin) throw new Error("Forbidden");
-    const { data, error } = await supabase
-      .from("payments")
-      .select("id, user_id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, duration_days)")
-      .order("created_at", { ascending: false })
-      .limit(200);
-    if (error) throw error;
-    return data ?? [];
-  });
-
-/** Admin: approve a payment and create the matching subscription. */
-export const reviewPayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z
-      .object({
-        paymentId: z.string().uuid(),
-        action: z.enum(["approve", "reject"]),
-        notes: z.string().max(500).optional(),
-      })
-      .parse(d),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (!isAdmin) throw new Error("Forbidden");
-
-    const { data: pay, error: payErr } = await supabase
-      .from("payments")
-      .select("id, user_id, plan_id, status, plan:subscription_plans(duration_days)")
-      .eq("id", data.paymentId)
-      .maybeSingle();
-    if (payErr || !pay) throw new Error("Payment not found");
-    if (pay.status !== "pending") throw new Error("Already processed");
-    if (!pay.plan_id) throw new Error("Payment has no plan attached");
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    if (data.action === "reject") {
-      await supabaseAdmin
-        .from("payments")
-        .update({ status: "rejected", notes: data.notes, verified_at: new Date().toISOString(), verified_by: userId })
-        .eq("id", pay.id);
-      return { ok: true };
-    }
-
-    const days = (pay.plan as { duration_days: number } | null)?.duration_days ?? 30;
-    const now = new Date();
-
-    const { error: subErr } = await supabaseAdmin.rpc("grant_subscription", {
-      _user_id: pay.user_id,
-      _plan_id: pay.plan_id,
-      _days: days,
-    });
-    if (subErr) throw subErr;
-
-    await supabaseAdmin
-      .from("payments")
-      .update({ status: "verified", notes: data.notes, verified_at: now.toISOString(), verified_by: userId })
-      .eq("id", pay.id);
-    return { ok: true };
-  });
-
-/** Self-service: promote current user to admin if no admin exists yet. Bootstrap helper. */
-export const claimFirstAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if ((count ?? 0) > 0) throw new Error("Un administrateur existe déjà");
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: context.userId, role: "admin" });
-    if (error) throw error;
-    return { ok: true };
-  });
-/** Admin: save exam paper metadata after file upload */
-export const adminSaveExamPaper = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z.object({
-      title: z.string().min(3),
-      title_en: z.string().optional(),
-      subject: z.string().min(1),
-      level: z.string().min(1),
-      year: z.number().int().min(2000).max(2030),
-      language: z.enum(["fr", "en", "both"]),
-      has_solution: z.boolean(),
-      file_url: z.string().url(),
-      page_count: z.number().nullable().optional(),
-    }).parse(d),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (!isAdmin) throw new Error("Forbidden");
-
-    const { error } = await supabase.from("exam_papers").insert({
-      title: data.title,
-      title_en: data.title_en ?? null,
-      subject: data.subject,
-      level: data.level,
-      year: data.year,
-      language: data.language,
-      has_solution: data.has_solution,
-      file_url: data.file_url,
-      page_count: data.page_count ?? null,
-      is_active: true,
-    } as never);
-    if (error) throw error;
-    return { ok: true };
-  });
+        {/* Papers list */}
+        {hasAccess && !papers.isLoading && (papers.data?.length ?? 0) > 0 && (
+          <div className="grid gap-4">
+            {papers.data?.map((p) => (
+              <article key={p.id} className="flex items-center justify-between gap-4 rounded-2xl bg-card p-5 ring-1 ring-border hover:ring-primary/30 transition-all">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+                    <FileText className="size-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{p.title}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      <span className="text-xs bg-muted rounded-full px-2 py-0.5">{p.subject}</span>
+                      <span className="text-xs bg-muted rounded-full px-2 py-0.5">{p.level}</span>
+                      {p.year && <span className="text-xs bg-muted rounded-full px-2 py-0.5">{p.year}</span>}
+                      {p.has_solution && (
+                        <span className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-semibold">
+                          {tr("✓ Corrigé inclus", "✓ Answer key included")}
+                        </span>
+                      )}
+                      <span className="text-xs bg-muted rounded-full px-2 py-0.5 uppercase">
+                        {p.language === "both" ? "FR/EN" : p.language}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {p.file_url ? (
+                  <a
+                    href={p.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95"
+                  >
+                    <Download className="size-4" /> {tr("Télécharger", "Download")}
+                  </a>
+                ) : (
+                  <span className="shrink-0 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    <Lock className="size-3.5" /> {tr("Fichier à venir", "File coming")}
+                  </span>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
