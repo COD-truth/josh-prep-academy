@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListPayments, reviewPayment, adminSaveExamPaper, adminListApplications, reviewApplication } from "@/lib/access.functions";
+import { adminListPayments, reviewPayment, adminSaveExamPaper, adminListApplications, reviewApplication, getMyAvailability, saveMyAvailability } from "@/lib/access.functions";
 import { useLang } from "@/lib/i18n";
 import { toast } from "sonner";
-import { ArrowLeft, Check, X, Upload, FileText, Loader2, GraduationCap } from "lucide-react";
+import { ArrowLeft, Check, X, Upload, FileText, Loader2, GraduationCap, Calendar } from "lucide-react";
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -284,6 +284,9 @@ function AdminPage() {
             </table>
           </div>
         </section>
+        {/* ── AVAILABILITY ── */}
+        <AvailabilitySection lang={lang} />
+
         {/* ── TUTOR APPLICATIONS ── */}
         <TutorApplications lang={lang} />
 
@@ -379,6 +382,115 @@ function TutorApplications({ lang }: { lang: "fr" | "en" }) {
             </div>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Availability Component ───────────────────────────────────
+const DAYS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const HOURS = Array.from({ length: 15 }, (_, i) => `${String(i + 7).padStart(2, "0")}:00`);
+
+function AvailabilitySection({ lang }: { lang: "fr" | "en" }) {
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+  const fetchAvail = useServerFn(getMyAvailability);
+  const saveAvail = useServerFn(saveMyAvailability);
+
+  const [slots, setSlots] = useState<{ weekday: number; start_time: string; end_time: string }[]>([]);
+  const [saved, setSaved] = useState(false);
+
+  useQuery({
+    queryKey: ["my-availability"],
+    queryFn: async () => {
+      const data = await fetchAvail({});
+      setSlots(data.map((d: { weekday: number; start_time: string; end_time: string }) => ({
+        weekday: d.weekday,
+        start_time: (d.start_time as string).slice(0, 5),
+        end_time: (d.end_time as string).slice(0, 5),
+      })));
+      return data;
+    },
+  });
+
+  const saveMut = useMutation({
+    mutationFn: () => saveAvail({ data: { slots } }),
+    onSuccess: () => { toast.success(tr("Disponibilités sauvegardées ✅", "Availability saved ✅")); setSaved(true); setTimeout(() => setSaved(false), 3000); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const addSlot = (day: number) => {
+    setSlots(s => [...s, { weekday: day, start_time: "08:00", end_time: "12:00" }]);
+  };
+
+  const removeSlot = (idx: number) => setSlots(s => s.filter((_, i) => i !== idx));
+
+  const updateSlot = (idx: number, key: "start_time" | "end_time", val: string) => {
+    setSlots(s => s.map((sl, i) => i === idx ? { ...sl, [key]: val } : sl));
+  };
+
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="grid size-10 place-items-center rounded-xl bg-primary/10">
+          <Calendar className="size-5 text-primary" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold">{tr("Mes disponibilités", "My availability")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {tr("Définissez vos créneaux hebdomadaires. Les élèves verront ces horaires pour réserver.", "Set your weekly slots. Students will see these when booking.")}
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-card ring-1 ring-border p-6 space-y-4">
+        <div className="grid grid-cols-7 gap-2 mb-4">
+          {DAYS.map((day, i) => (
+            <button key={i} onClick={() => addSlot(i)}
+              className="rounded-xl border border-dashed border-border py-2 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-all text-center">
+              + {lang === "fr" ? day : DAYS_EN[i]}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">{tr("Cliquez sur un jour pour ajouter un créneau", "Click a day to add a slot")}</p>
+
+        {slots.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-6">
+            {tr("Aucune disponibilité définie. Cliquez sur un jour pour commencer.", "No availability set. Click a day to start.")}
+          </p>
+        )}
+
+        <div className="space-y-3">
+          {slots.map((slot, idx) => (
+            <div key={idx} className="flex items-center gap-3 rounded-xl bg-muted/40 px-4 py-3">
+              <span className="w-8 text-xs font-bold text-center text-primary">
+                {lang === "fr" ? DAYS[slot.weekday] : DAYS_EN[slot.weekday]}
+              </span>
+              <select value={slot.start_time} onChange={e => updateSlot(idx, "start_time", e.target.value)}
+                className="rounded-lg ring-1 ring-border bg-background px-2 py-1.5 text-sm">
+                {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+              </select>
+              <span className="text-muted-foreground text-sm">→</span>
+              <select value={slot.end_time} onChange={e => updateSlot(idx, "end_time", e.target.value)}
+                className="rounded-lg ring-1 ring-border bg-background px-2 py-1.5 text-sm">
+                {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+              </select>
+              <button onClick={() => removeSlot(idx)} className="ml-auto text-rose-500 hover:text-rose-700">
+                <X className="size-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}
+          className="w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2">
+          {saveMut.isPending
+            ? <><Loader2 className="size-4 animate-spin" /> {tr("Sauvegarde...", "Saving...")}</>
+            : saved
+              ? <><Check className="size-4" /> {tr("Sauvegardé !", "Saved!")}</>
+              : tr("Sauvegarder mes disponibilités", "Save my availability")
+          }
+        </button>
       </div>
     </section>
   );
