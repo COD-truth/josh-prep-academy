@@ -32,8 +32,8 @@ export function LandingPage() {
 
 function Logo() {
   return (
-    <a href="#" className="flex items-center">
-      <img src={logoImg} alt="Josh & Co" className="h-10 w-auto" />
+    <a href="/" className="flex items-center">
+      <img src={logoImg} alt="Josh & Co" className="h-14 w-auto" />
     </a>
   );
 }
