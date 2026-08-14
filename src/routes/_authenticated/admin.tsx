@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListPayments, reviewPayment, adminSaveExamPaper } from "@/lib/access.functions";
+import { adminListPayments, reviewPayment, adminSaveExamPaper, adminListApplications, reviewApplication } from "@/lib/access.functions";
 import { useLang } from "@/lib/i18n";
 import { toast } from "sonner";
-import { ArrowLeft, Check, X, Upload, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, X, Upload, FileText, Loader2, GraduationCap } from "lucide-react";
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,6 +24,14 @@ function AdminPage() {
   const saveExam = useServerFn(adminSaveExamPaper);
 
   const q = useQuery({ queryKey: ["admin-payments"], queryFn: () => fetchPayments({}) });
+  const fetchApplications = useServerFn(adminListApplications);
+  const reviewApp = useServerFn(reviewApplication);
+  const appsQ = useQuery({ queryKey: ["admin-applications"], queryFn: () => fetchApplications({}) });
+  const appMut = useMutation({
+    mutationFn: (v: { applicationId: string; action: "approved" | "rejected" }) => reviewApp({ data: v }),
+    onSuccess: () => { toast.success(tr("Mis à jour", "Updated")); appsQ.refetch(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const mut = useMutation({
     mutationFn: (v: { paymentId: string; action: "approve" | "reject" }) => review({ data: v }),
     onSuccess: () => { toast.success(tr("Mis à jour", "Updated")); q.refetch(); },
@@ -276,7 +284,102 @@ function AdminPage() {
             </table>
           </div>
         </section>
+        {/* ── TUTOR APPLICATIONS ── */}
+        <TutorApplications lang={lang} />
+
       </main>
     </div>
+  );
+}
+
+// ── Tutor Applications Component ────────────────────────────
+function TutorApplications({ lang }: { lang: "fr" | "en" }) {
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+  const fetchApps = useServerFn(adminListApplications);
+  const review = useServerFn(reviewApplication);
+
+  const q = useQuery({ queryKey: ["admin-applications"], queryFn: () => fetchApps({}) });
+  const mut = useMutation({
+    mutationFn: (v: { applicationId: string; action: "approve" | "reject" }) => review({ data: v }),
+    onSuccess: () => { toast.success(tr("Mis à jour", "Updated")); q.refetch(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const statusColor = (s: string) =>
+    s === "approved" ? "bg-emerald-100 text-emerald-700" :
+    s === "rejected" ? "bg-rose-100 text-rose-700" :
+    "bg-amber-100 text-amber-700";
+
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="grid size-10 place-items-center rounded-xl bg-blue-100">
+          <GraduationCap className="size-5 text-blue-700" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold">{tr("Candidatures tuteurs", "Tutor applications")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {tr("Approuvez ou rejetez les candidatures.", "Approve or reject applications.")}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {q.isLoading && <p className="text-sm text-muted-foreground">{tr("Chargement...", "Loading...")}</p>}
+        {(q.data?.length ?? 0) === 0 && !q.isLoading && (
+          <div className="rounded-2xl bg-card ring-1 ring-border p-8 text-center text-muted-foreground text-sm">
+            {tr("Aucune candidature pour le moment.", "No applications yet.")}
+          </div>
+        )}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {(q.data as any[])?.map((app) => (
+          <div key={app.id} className="rounded-2xl bg-card ring-1 ring-border p-6">
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="font-semibold text-lg">{app.full_name}</h3>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusColor(app.status)}`}>
+                    {app.status}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{app.phone} · {app.diploma}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {app.experience_years} {tr("ans d'expérience", "years exp.")} · {app.hourly_rate_fcfa?.toLocaleString()} XAF/h
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {(app.subjects as string[] ?? []).map((s: string) => (
+                    <span key={s} className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-semibold">{s}</span>
+                  ))}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {(app.levels as string[] ?? []).map((l: string) => (
+                    <span key={l} className="rounded-full bg-muted px-2 py-0.5 text-xs">{l}</span>
+                  ))}
+                </div>
+                {app.bio && (
+                  <p className="mt-3 text-sm text-muted-foreground italic line-clamp-3">"{app.bio}"</p>
+                )}
+              </div>
+              {app.status === "pending" && (
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => mut.mutate({ applicationId: app.id, action: "approve" })}
+                    disabled={mut.isPending}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50">
+                    <Check className="size-4" /> {tr("Approuver", "Approve")}
+                  </button>
+                  <button
+                    onClick={() => mut.mutate({ applicationId: app.id, action: "reject" })}
+                    disabled={mut.isPending}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 text-white px-4 py-2 text-sm font-semibold hover:bg-rose-700 disabled:opacity-50">
+                    <X className="size-4" /> {tr("Rejeter", "Reject")}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

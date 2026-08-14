@@ -5,15 +5,127 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { listActiveTutors, getTutorSchedule, createBooking } from "@/lib/booking.functions";
 import { useLang } from "@/lib/i18n";
-import { Calendar, Clock, MapPin, Video, Home } from "lucide-react";
+import { Calendar, Clock, MapPin, Video, Home, Phone, X, Loader2, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/book")({
   head: () => ({ meta: [{ title: "Réserver un cours — Josh & Co" }] }),
   component: BookPage,
 });
 
+const ORANGE_NUMBER = "+237 655 677 313";
+const MTN_NUMBER = "+237 658 764 216";
 type Format = "home" | "online" | "office";
 
+// ── Payment Modal ──────────────────────────────────────────────
+function PaymentModal({
+  amount, tutorName, onConfirm, onClose, lang,
+}: {
+  amount: number; tutorName: string;
+  onConfirm: (data: { provider: "orange" | "mtn"; phone: string; transactionRef: string }) => void;
+  onClose: () => void; lang: "fr" | "en";
+}) {
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+  const [provider, setProvider] = useState<"orange" | "mtn">("orange");
+  const [phone, setPhone] = useState("");
+  const [ref, setRef] = useState("");
+  const merchantNumber = provider === "orange" ? ORANGE_NUMBER : MTN_NUMBER;
+  const canSubmit = phone.length >= 9 && ref.length >= 4;
+
+  const inp = "rounded-xl ring-1 ring-border bg-background px-4 py-2.5 text-sm focus:ring-primary focus:outline-none w-full";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-card rounded-2xl ring-1 ring-border w-full max-w-md shadow-2xl">
+        <div className="flex items-center justify-between p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <CreditCard className="size-5 text-primary" />
+            <h2 className="text-lg font-semibold">{tr("Paiement du cours", "Pay for lesson")}</h2>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Amount */}
+          <div className="rounded-xl bg-primary/8 p-4 text-center">
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              {tr("Cours avec", "Lesson with")} {tutorName}
+            </p>
+            <p className="text-3xl font-bold">{amount.toLocaleString("fr-FR")} <span className="text-lg font-normal text-muted-foreground">XAF</span></p>
+          </div>
+
+          {/* Operator */}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              {tr("Opérateur", "Operator")}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {(["orange", "mtn"] as const).map((op) => (
+                <button key={op} onClick={() => setProvider(op)}
+                  className={`rounded-xl py-3 text-sm font-bold border-2 transition ${
+                    provider === op
+                      ? op === "orange" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-border"
+                  }`}>
+                  {op === "orange" ? "🟠 Orange Money" : "🟡 MTN MoMo"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="rounded-xl bg-muted p-4 space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {tr("Envoyez le montant à ce numéro", "Send the amount to this number")}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Phone className="size-4 text-primary" />
+              <p className="text-lg font-bold">{merchantNumber}</p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {tr("Puis entrez les informations ci-dessous", "Then fill in the details below")}
+            </p>
+          </div>
+
+          {/* Form */}
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                {tr("Votre numéro Mobile Money *", "Your Mobile Money number *")}
+              </label>
+              <input className={inp} value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="+237 6XX XX XX XX" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                {tr("ID de transaction *", "Transaction ID *")}
+              </label>
+              <input className={inp} value={ref} onChange={e => setRef(e.target.value)}
+                placeholder="MP240813.1234.ABCDE" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {tr("Visible dans votre SMS de confirmation", "Found in your confirmation SMS")}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onConfirm({ provider, phone, transactionRef: ref })}
+            disabled={!canSubmit}
+            className="w-full rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40"
+          >
+            {tr("Confirmer le paiement et la réservation", "Confirm payment & booking")}
+          </button>
+          <p className="text-xs text-center text-muted-foreground">
+            {tr("Votre réservation sera confirmée après vérification du paiement (sous 24h).", "Your booking will be confirmed after payment verification (within 24h).")}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Page ──────────────────────────────────────────────────
 function BookPage() {
   const { lang } = useLang();
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
@@ -32,10 +144,11 @@ function BookPage() {
   const [level, setLevel] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
 
   const tutor = tutorsQ.data?.find((t) => t.id === tutorId) ?? null;
+  const estimatedAmount = tutor ? Math.round((tutor.hourly_rate_fcfa * duration) / 60) : 0;
 
-  // 14-day horizon
   const days = useMemo(() => {
     const out: { iso: string; label: string; weekday: number }[] = [];
     const now = new Date();
@@ -55,27 +168,19 @@ function BookPage() {
   const scheduleQ = useQuery({
     enabled: !!tutorId,
     queryKey: ["tutor-schedule", tutorId],
-    queryFn: () =>
-      fetchSchedule({
-        data: {
-          tutorId: tutorId!,
-          fromISO: new Date(days[0].iso + "T00:00:00.000Z").toISOString(),
-          toISO: new Date(days[days.length - 1].iso + "T23:59:59.999Z").toISOString(),
-        },
-      }),
+    queryFn: () => fetchSchedule({ data: {
+      tutorId: tutorId!,
+      fromISO: new Date(days[0].iso + "T00:00:00.000Z").toISOString(),
+      toISO: new Date(days[days.length - 1].iso + "T23:59:59.999Z").toISOString(),
+    }}),
   });
 
-  // Generate hourly slots from availability windows for a day, minus busy ones and past times
   const slotsForDay = useMemo(() => {
     if (!dayISO || !scheduleQ.data) return [] as { hm: string; disabled: boolean }[];
     const d = new Date(dayISO + "T00:00:00.000Z");
     const weekday = d.getUTCDay();
     const windows = scheduleQ.data.availability.filter((w) => w.weekday === weekday);
-    const busy = new Set(
-      scheduleQ.data.busy
-        .filter((b) => b.starts_at.slice(0, 10) === dayISO)
-        .map((b) => b.starts_at.slice(11, 16)),
-    );
+    const busy = new Set(scheduleQ.data.busy.filter((b) => b.starts_at.slice(0, 10) === dayISO).map((b) => b.starts_at.slice(11, 16)));
     const nowPlus1h = Date.now() + 60 * 60 * 1000;
     const out: { hm: string; disabled: boolean }[] = [];
     for (const w of windows) {
@@ -84,41 +189,47 @@ function BookPage() {
       for (let h = start; h + duration / 60 <= end; h++) {
         const hm = `${String(h).padStart(2, "0")}:00`;
         const t = new Date(`${dayISO}T${hm}:00.000Z`).getTime();
-        const past = t < nowPlus1h;
-        out.push({ hm, disabled: busy.has(hm) || past });
+        out.push({ hm, disabled: busy.has(hm) || t < nowPlus1h });
       }
     }
     return out;
   }, [dayISO, scheduleQ.data, duration]);
 
-  const mutate = useMutation({
-    mutationFn: async () => {
+  const bookMut = useMutation({
+    mutationFn: async (payment: { provider: "orange" | "mtn"; phone: string; transactionRef: string }) => {
       if (!tutorId || !dayISO || !timeHM) throw new Error(tr("Sélectionnez un créneau", "Pick a slot"));
       if (!subject || !level) throw new Error(tr("Matière et niveau requis", "Subject and level required"));
       const startsAt = new Date(`${dayISO}T${timeHM}:00.000Z`).toISOString();
-      return book({
-        data: {
-          tutorId,
-          startsAt,
-          durationMinutes: duration,
-          subject,
-          level,
-          format,
-          address: format === "home" ? address : undefined,
-          notes: notes || undefined,
-        },
-      });
+      return book({ data: {
+        tutorId, startsAt, durationMinutes: duration, subject, level, format,
+        address: format === "home" ? address : undefined,
+        notes: notes || undefined,
+        payment: { ...payment, amountXaf: estimatedAmount },
+      }});
     },
     onSuccess: () => {
-      toast.success(tr("Réservation créée. Complétez le paiement.", "Booking created. Complete payment."));
+      toast.success(tr("Réservation créée ! Confirmation sous 24h après vérification du paiement.", "Booking created! Confirmation within 24h after payment verification."));
+      setShowPayment(false);
       setTimeHM(null);
       scheduleQ.refetch();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => { toast.error(e.message); setShowPayment(false); },
   });
+
+  const canProceed = !!tutorId && !!dayISO && !!timeHM && !!subject && !!level;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {showPayment && tutor && (
+        <PaymentModal
+          amount={estimatedAmount}
+          tutorName={tutor.full_name}
+          lang={lang}
+          onClose={() => setShowPayment(false)}
+          onConfirm={(payment) => bookMut.mutate(payment)}
+        />
+      )}
+
       <header className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link to="/dashboard" className="text-sm font-semibold text-primary">← {tr("Tableau de bord", "Dashboard")}</Link>
@@ -132,12 +243,12 @@ function BookPage() {
           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{tr("1. Choisir un tuteur", "1. Pick a tutor")}</p>
           <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
             {tutorsQ.isLoading && <p className="text-sm text-muted-foreground">{tr("Chargement...", "Loading...")}</p>}
+            {(tutorsQ.data?.length ?? 0) === 0 && !tutorsQ.isLoading && (
+              <p className="text-sm text-muted-foreground">{tr("Aucun tuteur disponible pour le moment.", "No tutors available yet.")}</p>
+            )}
             {tutorsQ.data?.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => { setTutorId(t.id); setDayISO(null); setTimeHM(null); }}
-                className={`w-full text-left rounded-2xl border p-4 transition ${tutorId === t.id ? "border-primary bg-primary-soft" : "border-border hover:border-primary/50"}`}
-              >
+              <button key={t.id} onClick={() => { setTutorId(t.id); setDayISO(null); setTimeHM(null); }}
+                className={`w-full text-left rounded-2xl border p-4 transition ${tutorId === t.id ? "border-primary bg-primary-soft" : "border-border hover:border-primary/50"}`}>
                 <p className="font-semibold">{t.full_name}</p>
                 {t.title && <p className="text-xs text-muted-foreground">{t.title}</p>}
                 <p className="mt-1 text-xs">{(t.subjects ?? []).slice(0, 3).join(" · ")}</p>
@@ -155,11 +266,10 @@ function BookPage() {
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2"><Calendar className="size-4" /> {tr("2. Date", "2. Date")}</p>
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {days.map((d) => (
-                    <button
-                      key={d.iso}
-                      onClick={() => { setDayISO(d.iso); setTimeHM(null); }}
-                      className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition ${dayISO === d.iso ? "bg-primary text-primary-foreground ring-primary" : "ring-border hover:ring-primary"}`}
-                    >{d.label}</button>
+                    <button key={d.iso} onClick={() => { setDayISO(d.iso); setTimeHM(null); }}
+                      className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition ${dayISO === d.iso ? "bg-primary text-primary-foreground ring-primary" : "ring-border hover:ring-primary"}`}>
+                      {d.label}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -168,22 +278,22 @@ function BookPage() {
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2"><Clock className="size-4" /> {tr("3. Heure", "3. Time")}</p>
                 <div className="mb-3 flex gap-2">
                   {[60, 90, 120].map((m) => (
-                    <button key={m} onClick={() => { setDuration(m); setTimeHM(null); }} className={`rounded-lg px-3 py-1.5 text-sm ring-1 ${duration === m ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>{m} min</button>
+                    <button key={m} onClick={() => { setDuration(m); setTimeHM(null); }}
+                      className={`rounded-lg px-3 py-1.5 text-sm ring-1 ${duration === m ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>
+                      {m} min
+                    </button>
                   ))}
                 </div>
                 {!dayISO && <p className="text-sm text-muted-foreground">{tr("Choisissez une date.", "Pick a date.")}</p>}
                 {dayISO && slotsForDay.length === 0 && <p className="text-sm text-muted-foreground">{tr("Aucun créneau ce jour.", "No slots this day.")}</p>}
                 <div className="flex flex-wrap gap-2">
                   {slotsForDay.map((s) => (
-                    <button
-                      key={s.hm}
-                      disabled={s.disabled}
-                      onClick={() => setTimeHM(s.hm)}
+                    <button key={s.hm} disabled={s.disabled} onClick={() => setTimeHM(s.hm)}
                       className={`rounded-lg px-3.5 py-2 text-sm font-semibold ring-1 transition ${
                         s.disabled ? "opacity-40 cursor-not-allowed ring-border" :
-                        timeHM === s.hm ? "bg-primary-soft text-primary ring-primary" : "ring-border hover:ring-primary"
-                      }`}
-                    >{s.hm}</button>
+                        timeHM === s.hm ? "bg-primary-soft text-primary ring-primary" : "ring-border hover:ring-primary"}`}>
+                      {s.hm}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -191,37 +301,50 @@ function BookPage() {
               <div className="rounded-3xl border border-border p-5 space-y-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{tr("4. Détails", "4. Details")}</p>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={tr("Matière (Maths, Physique...)", "Subject (Math, Physics...)")} className="rounded-lg border border-border px-3 py-2 text-sm" />
-                  <input value={level} onChange={(e) => setLevel(e.target.value)} placeholder={tr("Niveau (Terminale, Bac...)", "Level (Grade 12, A-Level...)")} className="rounded-lg border border-border px-3 py-2 text-sm" />
+                  <input value={subject} onChange={(e) => setSubject(e.target.value)}
+                    placeholder={tr("Matière (Maths, Physique...)", "Subject (Math, Physics...)")}
+                    className="rounded-lg border border-border px-3 py-2 text-sm" />
+                  <input value={level} onChange={(e) => setLevel(e.target.value)}
+                    placeholder={tr("Niveau (Terminale, Bac...)", "Level (Grade 12, A-Level...)")}
+                    className="rounded-lg border border-border px-3 py-2 text-sm" />
                 </div>
                 <div className="flex gap-2">
                   {(["online", "home", "office"] as Format[]).map((f) => {
                     const Icon = f === "online" ? Video : f === "home" ? Home : MapPin;
                     const label = f === "online" ? tr("En ligne", "Online") : f === "home" ? tr("À domicile", "At home") : tr("Au bureau", "Office");
                     return (
-                      <button key={f} onClick={() => setFormat(f)} className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ring-1 ${format === f ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>
+                      <button key={f} onClick={() => setFormat(f)}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ring-1 ${format === f ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>
                         <Icon className="size-4" /> {label}
                       </button>
                     );
                   })}
                 </div>
                 {format === "home" && (
-                  <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={tr("Adresse", "Address")} className="w-full rounded-lg border border-border px-3 py-2 text-sm" />
+                  <input value={address} onChange={(e) => setAddress(e.target.value)}
+                    placeholder={tr("Adresse", "Address")}
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm" />
                 )}
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={tr("Notes (optionnel)", "Notes (optional)")} className="w-full rounded-lg border border-border px-3 py-2 text-sm" rows={2} />
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                  placeholder={tr("Notes (optionnel)", "Notes (optional)")}
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm" rows={2} />
               </div>
 
+              {/* Total + Pay button */}
               <div className="flex items-center justify-between rounded-3xl bg-secondary text-secondary-foreground p-5">
                 <div>
                   <p className="text-xs opacity-70 uppercase tracking-wider">{tr("Total estimé", "Estimated total")}</p>
-                  <p className="text-2xl font-semibold">{Math.round((tutor.hourly_rate_fcfa * duration) / 60).toLocaleString()} FCFA</p>
+                  <p className="text-2xl font-semibold">{estimatedAmount.toLocaleString()} <span className="text-base font-normal opacity-70">FCFA</span></p>
+                  <p className="text-xs opacity-60 mt-0.5">{tr("Paiement Mobile Money", "Mobile Money payment")}</p>
                 </div>
                 <button
-                  onClick={() => mutate.mutate()}
-                  disabled={mutate.isPending || !timeHM}
-                  className="rounded-xl bg-accent px-6 py-3 font-semibold text-accent-foreground disabled:opacity-50"
-                >
-                  {mutate.isPending ? tr("Envoi...", "Sending...") : tr("Confirmer la réservation", "Confirm booking")}
+                  onClick={() => setShowPayment(true)}
+                  disabled={!canProceed || bookMut.isPending}
+                  className="rounded-xl bg-accent px-6 py-3 font-semibold text-accent-foreground disabled:opacity-50 flex items-center gap-2">
+                  {bookMut.isPending
+                    ? <><Loader2 className="size-4 animate-spin" /> {tr("Envoi...", "Sending...")}</>
+                    : <><CreditCard className="size-4" /> {tr("Payer & Réserver", "Pay & Book")}</>
+                  }
                 </button>
               </div>
             </>
