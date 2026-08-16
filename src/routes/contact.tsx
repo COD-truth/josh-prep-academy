@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav, Footer, WhatsAppFab } from "@/components/site/LandingPage";
 import { useLang } from "@/lib/i18n";
-import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, Loader2, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -17,6 +20,32 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const { lang, setLang } = useLang();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from("contact_messages")
+        .insert({ name, email, message });
+      if (error) throw error;
+      setSent(true);
+      setName(""); setEmail(""); setMessage("");
+      toast.success(tr("Message envoyé ! Nous vous répondons sous 24h.", "Message sent! We'll reply within 24h."));
+    } catch {
+      toast.error(tr("Erreur lors de l'envoi. Réessayez.", "Error sending. Please try again."));
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Nav lang={lang} setLang={setLang} />
@@ -56,23 +85,36 @@ function ContactPage() {
               );
             })}
           </div>
-          <form className="mt-10 rounded-3xl bg-card p-8 ring-1 ring-border grid gap-4">
+          <form onSubmit={handleSubmit} className="mt-10 rounded-3xl bg-card p-8 ring-1 ring-border grid gap-4">
+            {sent && (
+              <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 text-emerald-700 p-4">
+                <CheckCircle className="size-5 shrink-0" />
+                <p className="text-sm font-medium">{tr("Message envoyé ! Nous vous répondons sous 24h.", "Message sent! We'll reply within 24h.")}</p>
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-4">
               <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">{lang === "fr" ? "Nom" : "Name"}</span>
-                <input required className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+                <span className="font-medium">{tr("Nom", "Name")}</span>
+                <input required value={name} onChange={e => setName(e.target.value)}
+                  className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
               </label>
               <label className="grid gap-1.5 text-sm">
                 <span className="font-medium">Email</span>
-                <input type="email" required className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+                <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                  className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
               </label>
             </div>
             <label className="grid gap-1.5 text-sm">
               <span className="font-medium">Message</span>
-              <textarea rows={5} required className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+              <textarea rows={5} required value={message} onChange={e => setMessage(e.target.value)}
+                className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
             </label>
-            <button type="submit" className="mt-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
-              {lang === "fr" ? "Envoyer" : "Send"}
+            <button type="submit" disabled={loading}
+              className="mt-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading
+                ? <><Loader2 className="size-4 animate-spin" /> {tr("Envoi...", "Sending...")}</>
+                : tr("Envoyer le message", "Send message")
+              }
             </button>
           </form>
         </div>

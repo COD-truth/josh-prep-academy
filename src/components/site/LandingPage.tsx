@@ -17,6 +17,7 @@ export function LandingPage() {
       <Nav lang={lang} setLang={setLang} />
       <Hero lang={lang} />
       <SuccessStats lang={lang} />
+      <JoinSection lang={lang} />
       <Subjects lang={lang} />
       <Booking lang={lang} />
       <ExamBank lang={lang} />
@@ -69,16 +70,21 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
           <Link to="/banque-epreuves" className="hover:text-foreground transition-colors">{t(T.nav.exams, lang)}</Link>
           <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <LangSwitch lang={lang} setLang={setLang} />
           {user ? (
-            <Link to="/dashboard" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:opacity-95 transition-opacity">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
               {lang === "fr" ? "Mon espace" : "Dashboard"} <ArrowRight className="size-4" />
             </Link>
           ) : (
-            <Link to="/auth" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:opacity-95 transition-opacity">
-              {lang === "fr" ? "Se connecter" : "Sign in"} <ArrowRight className="size-4" />
-            </Link>
+            <>
+              <Link to="/auth" className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-foreground hover:text-primary transition-colors">
+                {lang === "fr" ? "Se connecter" : "Sign in"}
+              </Link>
+              <Link to="/auth" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
+                {lang === "fr" ? "S'inscrire" : "Sign up"} <ArrowRight className="size-3.5" />
+              </Link>
+            </>
           )}
         </div>
       </div>
@@ -107,11 +113,19 @@ function Hero({ lang }: { lang: Lang }) {
             {t(T.hero.subtitle, lang)}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/cours" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-slate-900 shadow-[var(--shadow-elegant)] hover:bg-amber-300 transition-colors">
-              {t(T.hero.cta1, lang)} <ArrowRight className="size-4" />
+            <Link to="/auth" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-slate-900 shadow-[var(--shadow-elegant)] hover:bg-amber-300 transition-colors">
+              {lang === "fr" ? "Commencer gratuitement" : "Get started free"} <ArrowRight className="size-4" />
             </Link>
-            <Link to="/banque-epreuves" className="inline-flex items-center gap-2 rounded-xl bg-white/10 ring-1 ring-white/25 text-white px-6 py-3.5 font-semibold hover:bg-white/20 transition-colors backdrop-blur">
-              {t(T.hero.cta2, lang)}
+            <Link to="/auth" className="inline-flex items-center gap-2 rounded-xl bg-white/10 ring-1 ring-white/25 text-white px-6 py-3.5 font-semibold hover:bg-white/20 transition-colors backdrop-blur">
+              {lang === "fr" ? "Se connecter" : "Sign in"}
+            </Link>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/cours" className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors">
+              📚 {lang === "fr" ? "Voir les cours →" : "Browse courses →"}
+            </Link>
+            <Link to="/banque-epreuves" className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors">
+              📝 {lang === "fr" ? "Banque d'épreuves →" : "Exam bank →"}
             </Link>
           </div>
           <div className="mt-10 flex flex-wrap gap-6 items-center text-sm text-white/70">
@@ -149,6 +163,68 @@ function Hero({ lang }: { lang: Lang }) {
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return <span className="text-xs font-bold tracking-[0.18em] text-primary uppercase">{children}</span>;
+}
+
+function JoinSection({ lang }: { lang: Lang }) {
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+  return (
+    <section className="py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="text-center mb-10">
+          <span className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
+            {tr("Rejoignez-nous", "Join us")}
+          </span>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-semibold">
+            {tr("Vous êtes élève ou enseignant ?", "Are you a student or teacher?")}
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+            {tr("Créez votre compte gratuitement en 30 secondes.", "Create your free account in 30 seconds.")}
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <Link to="/auth" className="group rounded-3xl bg-card ring-1 ring-border p-8 hover:ring-primary hover:shadow-lg transition-all text-left">
+            <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary mb-5 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <BookOpen className="size-7" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">{tr("Je suis élève", "I'm a student")}</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              {tr("Réservez des cours avec nos tuteurs, accédez à la banque d'épreuves et préparez vos examens.", "Book lessons with our tutors, access the exam bank and prepare for your exams.")}
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+              {[
+                tr("✓ Cours à domicile, en groupe ou en ligne", "✓ Home, group or online lessons"),
+                tr("✓ Banque d'épreuves corrigées", "✓ Past papers with answer keys"),
+                tr("✓ Paiement Mobile Money", "✓ Mobile Money payment"),
+              ].map(item => <li key={item}>{item}</li>)}
+            </ul>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
+              {tr("Commencer →", "Get started →")}
+            </span>
+          </Link>
+
+          <Link to="/auth" className="group rounded-3xl bg-card ring-1 ring-border p-8 hover:ring-primary hover:shadow-lg transition-all text-left">
+            <div className="grid size-14 place-items-center rounded-2xl bg-amber-100 text-amber-700 mb-5 group-hover:bg-amber-500 group-hover:text-white transition-all">
+              <GraduationCap className="size-7" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">{tr("Je suis enseignant", "I'm a teacher")}</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              {tr("Rejoignez notre équipe de tuteurs, créez votre profil et commencez à enseigner.", "Join our tutor team, create your profile and start teaching.")}
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+              {[
+                tr("✓ Inscription gratuite", "✓ Free registration"),
+                tr("✓ Gérez vos disponibilités", "✓ Manage your availability"),
+                tr("✓ Recevez des réservations", "✓ Receive bookings"),
+              ].map(item => <li key={item}>{item}</li>)}
+            </ul>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-amber-600 group-hover:gap-3 transition-all">
+              {tr("Devenir tuteur →", "Become a tutor →")}
+            </span>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function Subjects({ lang }: { lang: Lang }) {
