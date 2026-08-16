@@ -7,7 +7,7 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — Josh & Co" },
-      { name: "description", content: "Contactez l'équipe Josh & Co par email, téléphone ou WhatsApp. Yaoundé, Abidjan, Dakar." },
+      { name: "description", content: "Contactez l'équipe Josh & Co par email, téléphone ou WhatsApp. Yaoundé, Cameroun." },
       { property: "og:title", content: "Contact — Josh & Co" },
       { property: "og:description", content: "Écrivez-nous ou appelez-nous. Réponse sous 24h." },
     ],
@@ -33,10 +33,10 @@ function ContactPage() {
           </div>
           <div className="mt-14 grid md:grid-cols-2 gap-5">
             {[
-              { icon: Mail, label: "Email", value: "contact@joshandco.academy", href: "mailto:contact@joshandco.academy" },
-              { icon: Phone, label: lang === "fr" ? "Téléphone" : "Phone", value: "+237 6XX XX XX XX", href: "tel:+237600000000" },
-              { icon: MessageCircle, label: "WhatsApp", value: "+237 6XX XX XX XX", href: "https://wa.me/237600000000" },
-              { icon: MapPin, label: lang === "fr" ? "Bureaux" : "Offices", value: "Yaoundé · Abidjan · Dakar" },
+              { icon: Mail, label: "Email", value: "joshcollaborateurs@gmail.com", href: "mailto:joshcollaborateurs@gmail.com" },
+              { icon: Phone, label: lang === "fr" ? "Téléphone" : "Phone", value: "+237 691 91 67 47", href: "tel:+237691916747" },
+              { icon: MessageCircle, label: "WhatsApp", value: "+237 691 91 67 47", href: "https://wa.me/237691916747" },
+              { icon: MapPin, label: lang === "fr" ? "Localisation" : "Location", value: "Yaoundé, Cameroun" },
             ].map((c) => {
               const Icon = c.icon;
               const inner = (
