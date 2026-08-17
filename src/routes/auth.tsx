@@ -39,7 +39,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin + "/dashboard",
@@ -47,9 +47,21 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success(tr("Compte créé ! Vérifiez votre email.", "Account created! Check your email."));
-        if (userType === "teacher") {
-          navigate({ to: "/become-tutor" });
+
+        if (data.session) {
+          // Auto-logged in (email confirmation disabled in Supabase)
+          toast.success(tr("Compte créé ! Bienvenue 🎉", "Account created! Welcome 🎉"));
+          if (userType === "teacher") {
+            navigate({ to: "/become-tutor" });
+          } else {
+            navigate({ to: "/dashboard" });
+          }
+        } else {
+          // Email confirmation required — stay on page
+          toast.success(tr(
+            "Compte créé ! Vérifiez votre boîte email pour confirmer votre inscription.",
+            "Account created! Check your email to confirm your registration."
+          ));
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
