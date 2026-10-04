@@ -1,0 +1,126 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Nav, Footer, WhatsAppFab } from "@/components/site/LandingPage";
+import { useLang } from "@/lib/i18n";
+import { Mail, Phone, MapPin, MessageCircle, Loader2, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/contact")({
+  head: () => ({
+    meta: [
+      { title: "Contact — Josh & Co" },
+      { name: "description", content: "Contactez l'équipe Josh & Co par email, téléphone ou WhatsApp. Yaoundé, Cameroun." },
+      { property: "og:title", content: "Contact — Josh & Co" },
+      { property: "og:description", content: "Écrivez-nous ou appelez-nous. Réponse sous 24h." },
+    ],
+  }),
+  component: ContactPage,
+});
+
+function ContactPage() {
+  const { lang, setLang } = useLang();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from("contact_messages")
+        .insert({ name, email, message });
+      if (error) throw error;
+      setSent(true);
+      setName(""); setEmail(""); setMessage("");
+      toast.success(tr("Message envoyé ! Nous vous répondons sous 24h.", "Message sent! We'll reply within 24h."));
+    } catch {
+      toast.error(tr("Erreur lors de l'envoi. Réessayez.", "Error sending. Please try again."));
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Nav lang={lang} setLang={setLang} />
+      <section className="py-20 lg:py-28">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold tracking-[0.18em] text-primary uppercase">Contact</span>
+            <h1 className="mt-3 text-4xl sm:text-5xl font-semibold">
+              {lang === "fr" ? "Parlons de votre projet" : "Let's talk about your goals"}
+            </h1>
+            <p className="mt-4 text-muted-foreground">
+              {lang === "fr" ? "L'équipe Josh & Co vous répond sous 24h." : "The Josh & Co team replies within 24h."}
+            </p>
+          </div>
+          <div className="mt-14 grid md:grid-cols-2 gap-5">
+            {[
+              { icon: Mail, label: "Email", value: "joshcollaborateurs@gmail.com", href: "mailto:joshcollaborateurs@gmail.com" },
+              { icon: Phone, label: lang === "fr" ? "Téléphone" : "Phone", value: "+237 691 91 67 47", href: "tel:+237691916747" },
+              { icon: MessageCircle, label: "WhatsApp", value: "+237 691 91 67 47", href: "https://wa.me/237691916747" },
+              { icon: MapPin, label: lang === "fr" ? "Localisation" : "Location", value: "Yaoundé, Cameroun" },
+            ].map((c) => {
+              const Icon = c.icon;
+              const inner = (
+                <>
+                  <div className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary"><Icon className="size-5" /></div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                    <p className="mt-1 font-semibold">{c.value}</p>
+                  </div>
+                </>
+              );
+              const cls = "flex items-center gap-4 rounded-2xl bg-card p-6 ring-1 ring-border hover:ring-primary/40 transition-colors";
+              return c.href ? (
+                <a key={c.label} href={c.href} className={cls} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener">{inner}</a>
+              ) : (
+                <div key={c.label} className={cls}>{inner}</div>
+              );
+            })}
+          </div>
+          <form onSubmit={handleSubmit} className="mt-10 rounded-3xl bg-card p-8 ring-1 ring-border grid gap-4">
+            {sent && (
+              <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 text-emerald-700 p-4">
+                <CheckCircle className="size-5 shrink-0" />
+                <p className="text-sm font-medium">{tr("Message envoyé ! Nous vous répondons sous 24h.", "Message sent! We'll reply within 24h.")}</p>
+              </div>
+            )}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">{tr("Nom", "Name")}</span>
+                <input required value={name} onChange={e => setName(e.target.value)}
+                  className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+              </label>
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">Email</span>
+                <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                  className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+              </label>
+            </div>
+            <label className="grid gap-1.5 text-sm">
+              <span className="font-medium">Message</span>
+              <textarea rows={5} required value={message} onChange={e => setMessage(e.target.value)}
+                className="rounded-xl bg-background ring-1 ring-border px-4 py-2.5" />
+            </label>
+            <button type="submit" disabled={loading}
+              className="mt-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading
+                ? <><Loader2 className="size-4 animate-spin" /> {tr("Envoi...", "Sending...")}</>
+                : tr("Envoyer le message", "Send message")
+              }
+            </button>
+          </form>
+        </div>
+      </section>
+      <Footer lang={lang} />
+      <WhatsAppFab />
+    </div>
+  );
+}
