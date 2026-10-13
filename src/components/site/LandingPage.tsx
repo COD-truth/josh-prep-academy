@@ -1,4 +1,5 @@
 import { useLang, translations as T, t, type Lang } from "@/lib/i18n";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import drJosh from "@/assets/dr-josh.jpg";
@@ -6,7 +7,7 @@ import logoImg from "@/assets/logo.webp";
 import { SuccessStats } from "@/components/site/SuccessStats";
 import {
   Sigma, Atom, BookOpen, Languages, Stethoscope, Brain,
-  Calendar, Lock, Check, MessageCircle, Star, GraduationCap,
+  Calendar, Lock, Check, MessageCircle, Star, GraduationCap, Menu, X,
   ArrowRight, ShieldCheck, Sparkles,
 } from "lucide-react";
 
@@ -59,20 +60,21 @@ function LangSwitch({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
 
 export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const { user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    { to: "/cours", label: lang === "fr" ? "Trouver un prof" : "Find a tutor" },
+    { to: "/banque-epreuves", label: lang === "fr" ? "Réviser" : "Revise" },
+    { to: "/tarifs", label: lang === "fr" ? "Tarifs" : "Pricing" },
+    { to: "/schools", label: lang === "fr" ? "Écoles" : "Schools" },
+    { to: "/contact", label: "Contact" },
+  ] as const;
   return (
     <nav className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <Logo />
-        <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-muted-foreground">
-          <Link to="/cours" className="hover:text-foreground transition-colors">{lang === "fr" ? "Cours" : "Courses"}</Link>
-          <Link to="/tutors" className="hover:text-foreground transition-colors">{lang === "fr" ? "Tuteurs" : "Tutors"}</Link>
-          <Link to="/schools" className="hover:text-foreground transition-colors">{lang === "fr" ? "Écoles" : "Schools"}</Link>
-          <Link to="/matieres" className="hover:text-foreground transition-colors">{lang === "fr" ? "Matières" : "Subjects"}</Link>
-          <Link to="/tarifs" className="hover:text-foreground transition-colors">{lang === "fr" ? "Tarifs" : "Pricing"}</Link>
-          <Link to="/banque-epreuves" className="hover:text-foreground transition-colors">{t(T.nav.exams, lang)}</Link>
-          <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
-        </div>
+        <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted-foreground">{links.map(link => <Link key={link.to} to={link.to} className="hover:text-primary">{link.label}</Link>)}</div>
         <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={lang === "fr" ? "Menu de navigation" : "Navigation menu"} className="lg:hidden p-2 rounded-lg hover:bg-muted">{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button>
           <LangSwitch lang={lang} setLang={setLang} />
           {user ? (
             <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
@@ -90,6 +92,7 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
           )}
         </div>
       </div>
+      {menuOpen && <div id="mobile-navigation" className="lg:hidden border-t border-border px-4 py-4 grid gap-1">{links.map(link => <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-semibold hover:bg-muted">{link.label}</Link>)}<Link to="/auth" onClick={() => setMenuOpen(false)} className="px-3 py-3 text-sm font-semibold text-primary">{lang === "fr" ? "Se connecter" : "Sign in"}</Link></div>}
     </nav>
   );
 }
@@ -518,7 +521,6 @@ export function WhatsAppFab() {
       className="fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full bg-[#25D366] text-white shadow-[var(--shadow-elegant)] hover:scale-110 active:scale-95 transition-transform"
     >
       <MessageCircle className="size-6" />
-      <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-destructive text-[10px] font-bold ring-2 ring-background">1</span>
     </a>
   );
 }

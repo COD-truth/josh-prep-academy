@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import drJosh from "@/assets/dr-josh.jpg";
-import { LandingPage } from "@/components/site/LandingPage";
+import { MarketplaceHome } from "@/components/marketplace/MarketplaceHome";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,5 +17,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return <LandingPage />;
+  return <MarketplaceHome />;
 }

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ArrowRight, GraduationCap, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): { next?: string } => ({ next: typeof search.next === "string" && /^\/book(?:\?|$)/.test(search.next) ? search.next : undefined }),
   head: () => ({ meta: [{ title: "Josh & Co — Connexion / Sign in" }] }),
   component: AuthPage,
 });
@@ -16,6 +17,7 @@ type UserType = "student" | "teacher" | null;
 function AuthPage() {
   const { lang } = useLang();
   const { user } = useAuth();
+  const { next } = Route.useSearch();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [userType, setUserType] = useState<UserType>(null);
@@ -25,8 +27,11 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: "/dashboard", replace: true });
-  }, [user, navigate]);
+    if (user) {
+      if (next) window.location.replace(next);
+      else navigate({ to: "/dashboard", replace: true });
+    }
+  }, [user, navigate, next]);
 
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
 
@@ -42,7 +47,7 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: window.location.origin + "/dashboard",
+            emailRedirectTo: window.location.origin + (next ?? "/dashboard"),
             data: { full_name: fullName, user_type: userType },
           },
         });
@@ -52,7 +57,9 @@ function AuthPage() {
           // Auto-logged in (email confirmation disabled in Supabase)
           toast.success(tr("Compte créé ! Bienvenue 🎉", "Account created! Welcome 🎉"));
           if (userType === "teacher") {
-            navigate({ to: "/become-tutor" });
+            navigate({ to: "/contact" });
+          } else if (next) {
+            window.location.replace(next);
           } else {
             navigate({ to: "/dashboard" });
           }

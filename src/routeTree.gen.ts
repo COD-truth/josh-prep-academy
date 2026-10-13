@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as TutorsRouteImport } from './routes/tutors'
+import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as SchoolsRouteImport } from './routes/schools'
 import { Route as MatieresRouteImport } from './routes/matieres'
 import { Route as CoursRouteImport } from './routes/cours'
@@ -23,18 +23,17 @@ import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authentica
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
-import { Route as AuthenticatedBecomeTutorRouteImport } from './routes/_authenticated/become-tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicWebhooksMobileMoneyRouteImport } from './routes/api/public/webhooks/mobile-money'
 
-const TarifsRoute = TarifsRouteImport.update({
-  id: '/tarifs',
-  path: '/tarifs',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TutorsRoute = TutorsRouteImport.update({
   id: '/tutors',
   path: '/tutors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarifsRoute = TarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SchoolsRoute = SchoolsRouteImport.update({
@@ -96,12 +95,6 @@ const AuthenticatedBookRoute = AuthenticatedBookRouteImport.update({
   path: '/book',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedBecomeTutorRoute =
-  AuthenticatedBecomeTutorRouteImport.update({
-    id: '/become-tutor',
-    path: '/become-tutor',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -121,11 +114,10 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
   '/matieres': typeof MatieresRoute
+  '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
-  '/schools': typeof SchoolsRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
@@ -139,11 +131,10 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
   '/matieres': typeof MatieresRoute
+  '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
-  '/schools': typeof SchoolsRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exams': typeof AuthenticatedExamsRoute
@@ -159,11 +150,10 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
   '/matieres': typeof MatieresRoute
+  '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
-  '/schools': typeof SchoolsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
@@ -179,11 +169,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cours'
     | '/matieres'
+    | '/schools'
     | '/tarifs'
     | '/tutors'
-    | '/schools'
     | '/admin'
-    | '/become-tutor'
     | '/book'
     | '/dashboard'
     | '/exams'
@@ -197,11 +186,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cours'
     | '/matieres'
+    | '/schools'
     | '/tarifs'
     | '/tutors'
-    | '/schools'
     | '/admin'
-    | '/become-tutor'
     | '/book'
     | '/dashboard'
     | '/exams'
@@ -216,11 +204,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cours'
     | '/matieres'
+    | '/schools'
     | '/tarifs'
     | '/tutors'
-    | '/schools'
     | '/_authenticated/admin'
-    | '/_authenticated/become-tutor'
     | '/_authenticated/book'
     | '/_authenticated/dashboard'
     | '/_authenticated/exams'
@@ -236,9 +223,9 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CoursRoute: typeof CoursRoute
   MatieresRoute: typeof MatieresRoute
+  SchoolsRoute: typeof SchoolsRoute
   TarifsRoute: typeof TarifsRoute
   TutorsRoute: typeof TutorsRoute
-  SchoolsRoute: typeof SchoolsRoute
   ApiPublicWebhooksMobileMoneyRoute: typeof ApiPublicWebhooksMobileMoneyRoute
 }
 
@@ -256,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/tarifs'
       fullPath: '/tarifs'
       preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schools': {
+      id: '/schools'
+      path: '/schools'
+      fullPath: '/schools'
+      preLoaderRoute: typeof SchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matieres': {
@@ -291,13 +285,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/schools': {
-      id: '/schools'
-      path: '/schools'
-      fullPath: '/schools'
-      preLoaderRoute: typeof SchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -342,13 +329,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBookRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/become-tutor': {
-      id: '/_authenticated/become-tutor'
-      path: '/become-tutor'
-      fullPath: '/become-tutor'
-      preLoaderRoute: typeof AuthenticatedBecomeTutorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -368,7 +348,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedBecomeTutorRoute: typeof AuthenticatedBecomeTutorRoute
   AuthenticatedBookRoute: typeof AuthenticatedBookRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
@@ -377,7 +356,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedBecomeTutorRoute: AuthenticatedBecomeTutorRoute,
   AuthenticatedBookRoute: AuthenticatedBookRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
@@ -395,9 +373,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CoursRoute: CoursRoute,
   MatieresRoute: MatieresRoute,
+  SchoolsRoute: SchoolsRoute,
   TarifsRoute: TarifsRoute,
   TutorsRoute: TutorsRoute,
-  SchoolsRoute: SchoolsRoute,
   ApiPublicWebhooksMobileMoneyRoute: ApiPublicWebhooksMobileMoneyRoute,
 }
 export const routeTree = rootRouteImport

@@ -8,6 +8,7 @@ import { useLang } from "@/lib/i18n";
 import { Calendar, Clock, MapPin, Video, Home, Phone, X, Loader2, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/book")({
+  validateSearch: (search: Record<string, unknown>): { tutor?: string } => ({ tutor: typeof search.tutor === "string" && /^[0-9a-f-]{36}$/i.test(search.tutor) ? search.tutor : undefined }),
   head: () => ({ meta: [{ title: "Réserver un cours — Josh & Co" }] }),
   component: BookPage,
 });
@@ -128,6 +129,7 @@ function PaymentModal({
 // ── Main Page ──────────────────────────────────────────────────
 function BookPage() {
   const { lang } = useLang();
+  const { tutor: requestedTutor } = Route.useSearch();
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
 
   const fetchTutors = useServerFn(listActiveTutors);
@@ -135,7 +137,7 @@ function BookPage() {
   const book = useServerFn(createBooking);
 
   const tutorsQ = useQuery({ queryKey: ["tutors-active"], queryFn: () => fetchTutors() });
-  const [tutorId, setTutorId] = useState<string | null>(null);
+  const [tutorId, setTutorId] = useState<string | null>(requestedTutor ?? null);
   const [dayISO, setDayISO] = useState<string | null>(null);
   const [timeHM, setTimeHM] = useState<string | null>(null);
   const [duration, setDuration] = useState(60);
