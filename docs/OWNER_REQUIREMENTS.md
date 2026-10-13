@@ -22,3 +22,9 @@ Implemented on `feat/tutoring-marketplace` (PR #1):
 6. Apply the migration to production, then merge/deploy the PR. Do not deploy the frontend before its migration: queries now require `tutors.city`, `schools.study_fields`, applications and concours tables.
 
 Local verification: production build, TypeScript, targeted ESLint, search/registration/coordinate tests and public-page SSR smoke checks. No production account, payment, database schema or school record was changed by this work. The remote browser cannot reach the local preview, so final responsive visual QA is still required on the deployment preview.
+
+## Hosting compatibility
+
+The original `vercel.json` rewrote every route to `/index.html`, which conflicts with TanStack Start server routes. It now uses the generated Nitro Vercel Build Output API and explicitly installs via `npm ci`. The Bun lockfile is also refreshed for environments which detect Bun. `netlify.toml` selects Nitro's Netlify server preset and publishes the generated `dist` assets. Local provider builds passed using `VERCEL=1 npm run build` and `NITRO_PRESET=netlify npm run build`; the outputs include server functions and assets. Generated `.vercel` and `.netlify` directories are ignored.
+
+GitHub preview statuses initially reported Vercel and Netlify failures. The Vercel deployment log URL requires account login, so the precise remote failure reason was not readable in this environment. After this compatibility fix, verify the new remote deployment status and inspect provider project-level build/output settings if it still fails. This does not remove the Supabase migration and account-testing prerequisites above.
