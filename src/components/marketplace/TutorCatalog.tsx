@@ -10,10 +10,12 @@ import type { Lang } from "@/lib/i18n";
 export function TutorCatalog({
   lang,
   initialQuery = "",
+  initialLevel = "",
   compact = false,
 }: {
   lang: Lang;
   initialQuery?: string;
+  initialLevel?: string;
   compact?: boolean;
 }) {
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
@@ -24,12 +26,17 @@ export function TutorCatalog({
     staleTime: 60_000,
   });
   const [query, setQuery] = useState(initialQuery);
-  const [level, setLevel] = useState("");
+  const [level, setLevel] = useState(initialLevel);
   const [language, setLanguage] = useState("");
   const [budget, setBudget] = useState("");
   const [sort, setSort] = useState("name");
   const records = tutors.data ?? [];
-  const levels = [...new Set(records.flatMap((tutor) => tutor.levels ?? []))].sort();
+  const levels = [
+    ...new Set([
+      ...records.flatMap((tutor) => tutor.levels ?? []),
+      ...(initialLevel ? [initialLevel] : []),
+    ]),
+  ].sort();
   const languages = [...new Set(records.flatMap((tutor) => tutor.languages ?? []))].sort();
   const results = searchTutors(records, { query, level, language, budget, sort });
   const control =
@@ -233,6 +240,19 @@ export function TutorCatalog({
                       {tutor.languages?.join(" · ") ||
                         tr("Langues à préciser", "Ask about languages")}
                     </p>
+                    {tutor.city && (
+                      <p className="mt-3 text-sm text-muted-foreground">{tutor.city}</p>
+                    )}
+                    {tutor.bio && (
+                      <details className="mt-4 text-sm">
+                        <summary className="cursor-pointer font-semibold text-primary">
+                          {tr("Découvrir son approche", "Explore their teaching approach")}
+                        </summary>
+                        <p className="mt-3 text-muted-foreground whitespace-pre-line">
+                          {tutor.bio}
+                        </p>
+                      </details>
+                    )}
                     {!!tutor.years_experience && (
                       <p className="mt-3 text-sm text-muted-foreground">
                         {tutor.years_experience} {tr("ans d'expérience", "years of experience")}

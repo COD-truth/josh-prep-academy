@@ -332,6 +332,7 @@ export type Database = {
       }
       tutors: {
         Row: {
+          city: string | null
           bio: string | null
           created_at: string
           full_name: string
@@ -349,6 +350,7 @@ export type Database = {
           years_experience: number | null
         }
         Insert: {
+          city?: string | null
           bio?: string | null
           created_at?: string
           full_name: string
@@ -366,6 +368,7 @@ export type Database = {
           years_experience?: number | null
         }
         Update: {
+          city?: string | null
           bio?: string | null
           created_at?: string
           full_name?: string

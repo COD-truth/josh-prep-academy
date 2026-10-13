@@ -23,3 +23,8 @@ test('price and experience sorts do not mutate source records', () => {
   assert.equal(searchTutors(records, { ...defaults, sort: 'experience' })[0].full_name, 'Émilie');
   assert.equal(records[0].full_name, 'Émilie');
 });
+
+test('parent guide broad school stages match specific tutor levels', () => {
+  assert.equal(searchTutors(records, { ...defaults, level: 'Lycée' }).length, 2);
+  assert.equal(searchTutors(records, { ...defaults, level: 'Primaire' }).length, 0);
+});

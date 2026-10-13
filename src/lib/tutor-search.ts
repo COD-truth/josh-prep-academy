@@ -21,6 +21,20 @@ const aliases = [
   ["biologie", "biology", "svt"],
   ["chimie", "chemistry"],
 ];
+export function matchesTutorLevel(levels: string[], requested: string) {
+  if (!requested) return true;
+  const target = normalizeTutorText(requested);
+  const groups: Record<string, RegExp> = {
+    primaire: /^(primaire|primary|cp|ce[12]|cm[12]|grade [1-6])$/,
+    college: /^(college|6[eè]me|5[eè]me|4[eè]me|3[eè]me|6e|5e|4e|3e|bepc|gce o level)$/,
+    lycee: /^(lycee|2nde|seconde|1ere|premiere|terminale|probatoire|baccalaureat|gce a level)$/,
+    universite: /universite|university|licence|master|superieur|undergraduate|postgraduate/,
+  };
+  return levels.some(
+    (level) =>
+      normalizeTutorText(level) === target || !!groups[target]?.test(normalizeTutorText(level)),
+  );
+}
 export function searchTutors<T extends TutorSummary>(
   records: T[],
   filters: { query: string; level: string; language: string; budget: string; sort: string },
@@ -37,7 +51,7 @@ export function searchTutors<T extends TutorSummary>(
             searchable.includes(word),
           ),
         ) &&
-        (!filters.level || tutor.levels.includes(filters.level)) &&
+        matchesTutorLevel(tutor.levels, filters.level) &&
         (!filters.language || tutor.languages.includes(filters.language)) &&
         (!filters.budget || tutor.hourly_rate_fcfa <= Number(filters.budget))
       );

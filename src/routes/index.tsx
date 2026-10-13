@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import drJosh from "@/assets/dr-josh.jpg";
+import brandHero from "@/assets/joshco-hero.webp";
 import { MarketplaceHome } from "@/components/marketplace/MarketplaceHome";
 
 export const Route = createFileRoute("/")({
@@ -9,8 +9,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Plateforme bilingue FR/EN. Tuteurs experts, banque d'épreuves, paiement Mobile Money et intégration Google Classroom." },
       { property: "og:title", content: "Josh & Co — Excellence académique" },
       { property: "og:description", content: "Soutien scolaire & préparation aux concours par le Dr. Josh et son équipe." },
-      { property: "og:image", content: drJosh },
-      { name: "twitter:image", content: drJosh },
+      { property: "og:image", content: brandHero },
+      { name: "twitter:image", content: brandHero },
     ],
   }),
   component: Index,

@@ -255,7 +255,10 @@ export const applyAsTutor = createServerFn({ method: "POST" })
       subjects: z.array(z.string()).min(1),
       levels: z.array(z.string()).min(1),
       languages: z.array(z.string()).min(1),
-      experience_years: z.number().int().min(0).max(50),
+      experience_years: z.number().int().min(0).max(60),
+      residence: z.string().trim().min(3).max(200),
+      city: z.string().trim().min(2).max(80),
+      photo_url: z.string().url().startsWith("https://").optional(),
       bio: z.string().min(20).max(800),
       diploma: z.string().min(3).max(200),
       hourly_rate_fcfa: z.number().int().min(1000).max(50000),
@@ -276,7 +279,7 @@ export const applyAsTutor = createServerFn({ method: "POST" })
       user_id: userId, full_name: data.full_name, phone: data.phone,
       subjects: data.subjects, levels: data.levels, languages: data.languages,
       experience_years: data.experience_years, bio: data.bio,
-      diploma: data.diploma, hourly_rate_fcfa: data.hourly_rate_fcfa, status: "pending",
+      diploma: data.diploma, hourly_rate_fcfa: data.hourly_rate_fcfa, residence: data.residence, city: data.city, photo_url: data.photo_url ?? null, status: "pending",
     });
     if (error) throw error;
     return { ok: true };
@@ -287,7 +290,8 @@ export const getMyApplication = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const s = db(context.supabase);
-    const { data } = await s.from("tutor_applications").select("id, status, created_at, subjects, levels").eq("user_id", context.userId).maybeSingle();
+    const { data, error } = await s.from("tutor_applications").select("id, status, created_at, subjects, levels").eq("user_id", context.userId).maybeSingle();
+    if (error) throw error;
     return data ?? null;
   });
 
@@ -300,7 +304,7 @@ export const adminListApplications = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Forbidden");
     const s = db(supabase);
     const { data, error } = await s.from("tutor_applications")
-      .select("id, full_name, phone, subjects, levels, languages, experience_years, bio, diploma, hourly_rate_fcfa, status, created_at")
+      .select("id, full_name, phone, subjects, levels, languages, experience_years, residence, city, photo_url, bio, diploma, hourly_rate_fcfa, status, created_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];

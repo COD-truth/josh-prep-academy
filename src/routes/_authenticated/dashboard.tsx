@@ -88,7 +88,10 @@ function Dashboard() {
         </section>
 
         <section className="grid sm:grid-cols-2 gap-4">
-          <Link to="/" className="rounded-2xl bg-card ring-1 ring-border p-6 hover:ring-primary/40 transition-all group">
+          <Link to="/parent" className="rounded-2xl bg-card ring-1 ring-border p-6"><p className="font-semibold">{tr("Espace parent", "Parent space")}</p><p className="mt-2 text-sm text-muted-foreground">{tr("Réservations familiales, écoles et concours.", "Family bookings, schools and entrance exams.")}</p></Link>
+          {user?.user_metadata.user_type === "teacher" && <Link to="/become-tutor" className="rounded-2xl bg-card ring-1 ring-border p-6 font-semibold">{tr("Ma candidature enseignant", "My teaching application")}</Link>}
+
+          <Link to="/cours" className="rounded-2xl bg-card ring-1 ring-border p-6 hover:ring-primary/40 transition-all group">
             <div className="grid size-10 place-items-center rounded-lg bg-primary-soft text-primary"><Calendar className="size-5" /></div>
             <p className="mt-4 font-semibold">{tr("Réserver un cours", "Book a class")}</p>
             <p className="mt-1 text-sm text-muted-foreground">{tr("Choisissez un tuteur et un créneau.", "Pick a tutor and a slot.")}</p>

@@ -13,16 +13,21 @@ import { Route as TutorsRouteImport } from './routes/tutors'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as SchoolsRouteImport } from './routes/schools'
 import { Route as MatieresRouteImport } from './routes/matieres'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as CoursRouteImport } from './routes/cours'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ConcoursRouteImport } from './routes/concours'
 import { Route as BanqueEpreuvesRouteImport } from './routes/banque-epreuves'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
+import { Route as AuthenticatedParentRouteImport } from './routes/_authenticated/parent'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
+import { Route as AuthenticatedDirectoryRouteImport } from './routes/_authenticated/directory'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
+import { Route as AuthenticatedBecomeTutorRouteImport } from './routes/_authenticated/become-tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicWebhooksMobileMoneyRouteImport } from './routes/api/public/webhooks/mobile-money'
 
@@ -46,6 +51,11 @@ const MatieresRoute = MatieresRouteImport.update({
   path: '/matieres',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursRoute = CoursRouteImport.update({
   id: '/cours',
   path: '/cours',
@@ -54,6 +64,11 @@ const CoursRoute = CoursRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConcoursRoute = ConcoursRouteImport.update({
+  id: '/concours',
+  path: '/concours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BanqueEpreuvesRoute = BanqueEpreuvesRouteImport.update({
@@ -80,9 +95,19 @@ const AuthenticatedSubscribeRoute = AuthenticatedSubscribeRouteImport.update({
   path: '/subscribe',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedParentRoute = AuthenticatedParentRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDirectoryRoute = AuthenticatedDirectoryRouteImport.update({
+  id: '/directory',
+  path: '/directory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -95,6 +120,12 @@ const AuthenticatedBookRoute = AuthenticatedBookRouteImport.update({
   path: '/book',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBecomeTutorRoute =
+  AuthenticatedBecomeTutorRouteImport.update({
+    id: '/become-tutor',
+    path: '/become-tutor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -111,16 +142,21 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/banque-epreuves': typeof BanqueEpreuvesRoute
+  '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/directory': typeof AuthenticatedDirectoryRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/parent': typeof AuthenticatedParentRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
@@ -128,16 +164,21 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/banque-epreuves': typeof BanqueEpreuvesRoute
+  '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/directory': typeof AuthenticatedDirectoryRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/parent': typeof AuthenticatedParentRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
@@ -147,16 +188,21 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/banque-epreuves': typeof BanqueEpreuvesRoute
+  '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
   '/tutors': typeof TutorsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/directory': typeof AuthenticatedDirectoryRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
+  '/_authenticated/parent': typeof AuthenticatedParentRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
@@ -166,16 +212,21 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/banque-epreuves'
+    | '/concours'
     | '/contact'
     | '/cours'
+    | '/guide'
     | '/matieres'
     | '/schools'
     | '/tarifs'
     | '/tutors'
     | '/admin'
+    | '/become-tutor'
     | '/book'
     | '/dashboard'
+    | '/directory'
     | '/exams'
+    | '/parent'
     | '/subscribe'
     | '/api/public/webhooks/mobile-money'
   fileRoutesByTo: FileRoutesByTo
@@ -183,16 +234,21 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/banque-epreuves'
+    | '/concours'
     | '/contact'
     | '/cours'
+    | '/guide'
     | '/matieres'
     | '/schools'
     | '/tarifs'
     | '/tutors'
     | '/admin'
+    | '/become-tutor'
     | '/book'
     | '/dashboard'
+    | '/directory'
     | '/exams'
+    | '/parent'
     | '/subscribe'
     | '/api/public/webhooks/mobile-money'
   id:
@@ -201,16 +257,21 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/banque-epreuves'
+    | '/concours'
     | '/contact'
     | '/cours'
+    | '/guide'
     | '/matieres'
     | '/schools'
     | '/tarifs'
     | '/tutors'
     | '/_authenticated/admin'
+    | '/_authenticated/become-tutor'
     | '/_authenticated/book'
     | '/_authenticated/dashboard'
+    | '/_authenticated/directory'
     | '/_authenticated/exams'
+    | '/_authenticated/parent'
     | '/_authenticated/subscribe'
     | '/api/public/webhooks/mobile-money'
   fileRoutesById: FileRoutesById
@@ -220,8 +281,10 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BanqueEpreuvesRoute: typeof BanqueEpreuvesRoute
+  ConcoursRoute: typeof ConcoursRoute
   ContactRoute: typeof ContactRoute
   CoursRoute: typeof CoursRoute
+  GuideRoute: typeof GuideRoute
   MatieresRoute: typeof MatieresRoute
   SchoolsRoute: typeof SchoolsRoute
   TarifsRoute: typeof TarifsRoute
@@ -259,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatieresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cours': {
       id: '/cours'
       path: '/cours'
@@ -271,6 +341,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concours': {
+      id: '/concours'
+      path: '/concours'
+      fullPath: '/concours'
+      preLoaderRoute: typeof ConcoursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banque-epreuves': {
@@ -308,11 +385,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSubscribeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parent': {
+      id: '/_authenticated/parent'
+      path: '/parent'
+      fullPath: '/parent'
+      preLoaderRoute: typeof AuthenticatedParentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/exams': {
       id: '/_authenticated/exams'
       path: '/exams'
       fullPath: '/exams'
       preLoaderRoute: typeof AuthenticatedExamsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/directory': {
+      id: '/_authenticated/directory'
+      path: '/directory'
+      fullPath: '/directory'
+      preLoaderRoute: typeof AuthenticatedDirectoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -327,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/book'
       fullPath: '/book'
       preLoaderRoute: typeof AuthenticatedBookRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/become-tutor': {
+      id: '/_authenticated/become-tutor'
+      path: '/become-tutor'
+      fullPath: '/become-tutor'
+      preLoaderRoute: typeof AuthenticatedBecomeTutorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
@@ -348,17 +446,23 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBecomeTutorRoute: typeof AuthenticatedBecomeTutorRoute
   AuthenticatedBookRoute: typeof AuthenticatedBookRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDirectoryRoute: typeof AuthenticatedDirectoryRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
+  AuthenticatedParentRoute: typeof AuthenticatedParentRoute
   AuthenticatedSubscribeRoute: typeof AuthenticatedSubscribeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBecomeTutorRoute: AuthenticatedBecomeTutorRoute,
   AuthenticatedBookRoute: AuthenticatedBookRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDirectoryRoute: AuthenticatedDirectoryRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
+  AuthenticatedParentRoute: AuthenticatedParentRoute,
   AuthenticatedSubscribeRoute: AuthenticatedSubscribeRoute,
 }
 
@@ -370,8 +474,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BanqueEpreuvesRoute: BanqueEpreuvesRoute,
+  ConcoursRoute: ConcoursRoute,
   ContactRoute: ContactRoute,
   CoursRoute: CoursRoute,
+  GuideRoute: GuideRoute,
   MatieresRoute: MatieresRoute,
   SchoolsRoute: SchoolsRoute,
   TarifsRoute: TarifsRoute,

@@ -24,7 +24,7 @@ export const listActiveTutors = createServerFn({ method: "GET" }).handler(async 
   const sb = publicClient();
   const { data, error } = await sb
     .from("tutors")
-    .select("id, full_name, title, subjects, levels, languages, hourly_rate_fcfa, photo_url, rating, years_experience")
+    .select("id, full_name, title, subjects, levels, languages, hourly_rate_fcfa, photo_url, rating, years_experience, bio, city")
     .eq("is_active", true)
     .order("rating", { ascending: false });
   if (error) throw error;

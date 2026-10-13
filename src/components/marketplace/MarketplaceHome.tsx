@@ -16,7 +16,9 @@ import {
 import { Nav, Footer, WhatsAppFab } from "@/components/site/LandingPage";
 import { TutorCatalog } from "./TutorCatalog";
 import { useLang } from "@/lib/i18n";
-import drJosh from "@/assets/dr-josh.jpg";
+import brandHero from "@/assets/joshco-hero.webp";
+import { FamilyAssistant } from "./FamilyAssistant";
+import { SuccessStats } from "@/components/site/SuccessStats";
 
 export function MarketplaceHome() {
   const { lang, setLang } = useLang();
@@ -34,7 +36,7 @@ export function MarketplaceHome() {
     <div className="min-h-screen bg-background text-foreground">
       <Nav lang={lang} setLang={setLang} />
       <main>
-        <section className="relative overflow-hidden bg-primary-soft/40">
+        <section className="relative overflow-hidden bg-secondary text-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14 lg:py-20 grid lg:grid-cols-[1.15fr_.85fr] gap-12 items-center">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-xs font-semibold text-primary">
@@ -42,13 +44,13 @@ export function MarketplaceHome() {
                 {tr("À domicile & en ligne · Cameroun", "At home & online · Cameroon")}
               </p>
               <h1 className="mt-6 max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.08] tracking-tight">
-                {tr("Le bon prof.", "The right teacher.")}
+                {tr("Votre répétiteur.", "Your personal tutor.")}
                 <br />
-                <span className="font-display italic text-primary">
-                  {tr("Le déclic pour réussir.", "Your moment to thrive.")}
+                <span className="font-display italic text-accent">
+                  {tr("Votre avenir, accompagné.", "Your future, supported.")}
                 </span>
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
                 {tr(
                   "Un tuteur qui vous comprend, des cours à votre rythme et des ressources pour réviser. Du primaire à l'université, en français comme en anglais.",
                   "A tutor who understands you, lessons at your pace and resources to revise. From primary school to university, in French and English.",
@@ -76,7 +78,7 @@ export function MarketplaceHome() {
                       "Quelle matière cherchez-vous ?",
                       "What would you like to learn?",
                     )}
-                    className="min-w-0 w-full bg-transparent text-sm outline-none"
+                    className="min-w-0 w-full bg-transparent text-foreground text-sm outline-none"
                   />
                 </label>
                 <button className="flex justify-center items-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
@@ -84,11 +86,11 @@ export function MarketplaceHome() {
                   <ArrowRight className="size-4" />
                 </button>
               </form>
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 text-sm text-white/70">
                 {tr("Vous préférez être conseillé ?", "Prefer some guidance?")}{" "}
                 <Link
                   to="/contact"
-                  className="font-semibold text-primary underline underline-offset-4"
+                  className="font-semibold text-accent underline underline-offset-4"
                 >
                   {tr("Parlons de votre besoin", "Tell us what you need")}
                 </Link>
@@ -100,7 +102,7 @@ export function MarketplaceHome() {
                   tr("Orange Money & MTN", "Orange Money & MTN"),
                 ].map((text) => (
                   <span key={text} className="flex gap-1.5 items-center">
-                    <Check className="size-4 text-primary" />
+                    <Check className="size-4 text-accent" />
                     {text}
                   </span>
                 ))}
@@ -109,23 +111,26 @@ export function MarketplaceHome() {
             <div className="relative mx-auto w-full max-w-md lg:pl-6">
               <div className="overflow-hidden rounded-[2.5rem] bg-primary border-8 border-card shadow-xl">
                 <img
-                  src={drJosh}
-                  alt="Dr. Josh"
-                  width="896"
-                  height="1120"
+                  src={brandHero}
+                  alt={tr(
+                    "Visuel de marque Josh & Co : apprendre et progresser",
+                    "Josh & Co brand illustration: learning and progress",
+                  )}
+                  width="1536"
+                  height="1024"
                   className="w-full aspect-[4/4.5] object-cover"
                 />
               </div>
-              <div className="absolute bottom-5 left-2 sm:-left-4 rounded-2xl bg-card border border-border p-4 shadow-lg max-w-[270px]">
+              <div className="text-foreground absolute bottom-5 left-2 sm:-left-4 rounded-2xl bg-card border border-border p-4 shadow-lg max-w-[270px]">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">
                   {tr("Un accompagnement humain", "A human approach")}
                 </p>
-                <p className="mt-1 font-semibold">Dr. Josh · Josh & Co</p>
+                <p className="mt-1 font-semibold">Josh & Co</p>
                 <p className="mt-2 text-xs text-muted-foreground">
                   {tr("Comprendre. S'entraîner. Progresser.", "Understand. Practise. Progress.")}
                 </p>
               </div>
-              <div className="absolute -top-3 right-0 rounded-2xl bg-card border border-border px-4 py-3 shadow-sm flex gap-3 items-center">
+              <div className="text-foreground absolute -top-3 right-0 rounded-2xl bg-card border border-border px-4 py-3 shadow-sm flex gap-3 items-center">
                 <BookOpen className="size-5 text-primary" />
                 <span className="text-xs font-semibold">BEPC · BAC · GCE</span>
               </div>
@@ -150,7 +155,43 @@ export function MarketplaceHome() {
             ))}
           </div>
         </section>
+        <SuccessStats lang={lang} />
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+          <p className="text-xs uppercase tracking-widest text-primary font-semibold">
+            {tr("Le collectif Josh & Co", "The Josh & Co collective")}
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            {tr(
+              "Des parcours différents. Une même envie de transmettre.",
+              "Different paths. A shared passion for teaching.",
+            )}
+          </h2>
+          <p className="mt-4 max-w-3xl text-muted-foreground">
+            {tr(
+              "Notre collectif de répétiteurs réunit des enseignants, des élèves des écoles normales, des ingénieurs et des élèves ingénieurs pour accompagner les élèves selon leur niveau et leurs objectifs.",
+              "Our tutor collective brings together teachers, teacher-training students, engineers and engineering students to support learners according to their level and goals.",
+            )}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {[
+              tr("Enseignants", "Teachers"),
+              tr("Élèves des écoles normales", "Teacher-training students"),
+              tr("Ingénieurs", "Engineers"),
+              tr("Élèves ingénieurs", "Engineering students"),
+            ].map((label) => (
+              <span
+                key={label}
+                className="rounded-full border border-border bg-card px-5 py-3 text-sm font-semibold"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        </section>
         <TutorCatalog lang={lang} compact />
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+          <FamilyAssistant lang={lang} />
+        </section>
         <section className="bg-secondary text-secondary-foreground py-14 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="max-w-2xl">
@@ -262,7 +303,8 @@ export function MarketplaceHome() {
               </p>
             </div>
             <Link
-              to="/contact"
+              to="/auth"
+              search={{ mode: "signup", role: "teacher" }}
               className="shrink-0 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground"
             >
               {tr("Proposer mes cours", "Offer my lessons")}

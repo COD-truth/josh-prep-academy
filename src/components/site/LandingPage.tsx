@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import drJosh from "@/assets/dr-josh.jpg";
-import logoImg from "@/assets/logo.webp";
+import logoImg from "@/assets/logo-transparent.webp";
+import { getAccountDestination } from "@/lib/registration";
 import { SuccessStats } from "@/components/site/SuccessStats";
 import {
   Sigma, Atom, BookOpen, Languages, Stethoscope, Brain,
@@ -35,7 +36,7 @@ export function LandingPage() {
 function Logo() {
   return (
     <a href="/" className="flex items-center">
-      <img src={logoImg} alt="Josh & Co" className="h-14 w-auto" />
+      <img src={logoImg} alt="Josh & Co" className="h-12 w-16 object-contain" />
     </a>
   );
 }
@@ -66,18 +67,19 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
     { to: "/banque-epreuves", label: lang === "fr" ? "Réviser" : "Revise" },
     { to: "/tarifs", label: lang === "fr" ? "Tarifs" : "Pricing" },
     { to: "/schools", label: lang === "fr" ? "Écoles" : "Schools" },
-    { to: "/contact", label: "Contact" },
+    { to: "/concours", label: "Concours" },
+    { to: "/guide", label: lang === "fr" ? "Me guider" : "Guide me" },
   ] as const;
   return (
     <nav className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <Logo />
-        <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted-foreground">{links.map(link => <Link key={link.to} to={link.to} className="hover:text-primary">{link.label}</Link>)}</div>
+        <div className="hidden xl:flex items-center gap-5 text-sm font-medium text-muted-foreground">{links.map(link => <Link key={link.to} to={link.to} className="hover:text-primary">{link.label}</Link>)}</div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={lang === "fr" ? "Menu de navigation" : "Navigation menu"} className="lg:hidden p-2 rounded-lg hover:bg-muted">{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button>
+          <button type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={lang === "fr" ? "Menu de navigation" : "Navigation menu"} className="xl:hidden p-2 rounded-lg hover:bg-muted">{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button>
           <LangSwitch lang={lang} setLang={setLang} />
           {user ? (
-            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
+            <Link to={getAccountDestination(user.user_metadata.user_type)} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
               {lang === "fr" ? "Mon espace" : "Dashboard"} <ArrowRight className="size-4" />
             </Link>
           ) : (
@@ -85,14 +87,14 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
               <Link to="/auth" className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-foreground hover:text-primary transition-colors">
                 {lang === "fr" ? "Se connecter" : "Sign in"}
               </Link>
-              <Link to="/auth" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
+              <Link to="/auth" search={{ mode: "signup", role: "parent" }} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 transition-opacity">
                 {lang === "fr" ? "S'inscrire" : "Sign up"} <ArrowRight className="size-3.5" />
               </Link>
             </>
           )}
         </div>
       </div>
-      {menuOpen && <div id="mobile-navigation" className="lg:hidden border-t border-border px-4 py-4 grid gap-1">{links.map(link => <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-semibold hover:bg-muted">{link.label}</Link>)}<Link to="/auth" onClick={() => setMenuOpen(false)} className="px-3 py-3 text-sm font-semibold text-primary">{lang === "fr" ? "Se connecter" : "Sign in"}</Link></div>}
+      {menuOpen && <div id="mobile-navigation" className="xl:hidden border-t border-border px-4 py-4 grid gap-1">{links.map(link => <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-semibold hover:bg-muted">{link.label}</Link>)}<Link to="/auth" onClick={() => setMenuOpen(false)} className="px-3 py-3 text-sm font-semibold text-primary">{lang === "fr" ? "Se connecter" : "Sign in"}</Link></div>}
     </nav>
   );
 }
@@ -485,6 +487,9 @@ export function Footer({ lang }: { lang: Lang }) {
               <li><Link to="/matieres" className="hover:text-white">{lang === "fr" ? "Matières" : "Subjects"}</Link></li>
               <li><Link to="/tarifs" className="hover:text-white">{lang === "fr" ? "Tarifs" : "Pricing"}</Link></li>
               <li><Link to="/banque-epreuves" className="hover:text-white">{t(T.nav.exams, lang)}</Link></li>
+              <li><Link to="/schools" className="hover:text-white">{lang === "fr" ? "Trouver une école" : "Find a school"}</Link></li>
+              <li><Link to="/concours" className="hover:text-white">Concours</Link></li>
+              <li><Link to="/guide" className="hover:text-white">{lang === "fr" ? "Assistant famille" : "Family guide"}</Link></li>
               <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
             </ul>
           </div>

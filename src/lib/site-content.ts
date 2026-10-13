@@ -17,7 +17,7 @@ export const successStats = [
   ]},
 ];
 
-export const overallRate = 94.5;
+export const overallRate = 98.67;
 
 export type ExamPaper = {
   id: string;

@@ -103,6 +103,7 @@ function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10 space-y-12">
+        <Link to="/directory" className="inline-flex rounded-xl bg-primary px-5 py-3 text-primary-foreground font-semibold">{tr("Gérer les profils, filières et concours", "Manage profiles, study fields and entrance exams")}</Link>
 
         {/* ── UPLOAD ÉPREUVE ── */}
         <section>
@@ -303,7 +304,7 @@ function TutorApplications({ lang }: { lang: "fr" | "en" }) {
 
   const q = useQuery({ queryKey: ["admin-applications"], queryFn: () => fetchApps({}) });
   const mut = useMutation({
-    mutationFn: (v: { applicationId: string; action: "approve" | "reject" }) => review({ data: v }),
+    mutationFn: (v: { applicationId: string; action: "approved" | "rejected" }) => review({ data: v }),
     onSuccess: () => { toast.success(tr("Mis à jour", "Updated")); q.refetch(); },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -346,6 +347,8 @@ function TutorApplications({ lang }: { lang: "fr" | "en" }) {
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">{app.phone} · {app.diploma}</p>
+                <p className="text-sm text-muted-foreground">{app.city} · {app.residence}</p>
+                {app.photo_url && <img src={app.photo_url} alt={app.full_name} className="mt-3 size-20 rounded-xl object-cover" />}
                 <p className="text-sm text-muted-foreground mt-0.5">
                   {app.experience_years} {tr("ans d'expérience", "years exp.")} · {app.hourly_rate_fcfa?.toLocaleString()} XAF/h
                 </p>
@@ -366,13 +369,13 @@ function TutorApplications({ lang }: { lang: "fr" | "en" }) {
               {app.status === "pending" && (
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => mut.mutate({ applicationId: app.id, action: "approve" })}
+                    onClick={() => mut.mutate({ applicationId: app.id, action: "approved" })}
                     disabled={mut.isPending}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50">
                     <Check className="size-4" /> {tr("Approuver", "Approve")}
                   </button>
                   <button
-                    onClick={() => mut.mutate({ applicationId: app.id, action: "reject" })}
+                    onClick={() => mut.mutate({ applicationId: app.id, action: "rejected" })}
                     disabled={mut.isPending}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 text-white px-4 py-2 text-sm font-semibold hover:bg-rose-700 disabled:opacity-50">
                     <X className="size-4" /> {tr("Rejeter", "Reject")}
