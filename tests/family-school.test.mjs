@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { registrationSchema, getAccountDestination } from '../src/lib/registration.ts';
+import { hasSchoolCoordinates, distanceKm } from '../src/lib/school-map.ts';
+const parent={full_name:'Marie Parent',phone:'+237699123456',user_type:'parent'};
+test('parent registration is accepted without teacher fields',()=>{assert.equal(registrationSchema.parse(parent).user_type,'parent');assert.equal(getAccountDestination('parent'),'/parent');});
+test('teacher signup requires subjects, levels and residence',()=>{assert.equal(registrationSchema.safeParse({...parent,user_type:'teacher'}).success,false);const teacher={...parent,user_type:'teacher',subjects:['Mathématiques'],levels:['Terminale'],residence:'Yaoundé, Bastos',experience_years:5};assert.equal(registrationSchema.parse(teacher).experience_years,5);assert.equal(registrationSchema.safeParse({...teacher,experience_years:-1}).success,false);assert.equal(registrationSchema.safeParse({...teacher,experience_years:1.5}).success,false);});
+test('self-declared account types never select an admin route',()=>{assert.equal(getAccountDestination('admin'),'/dashboard');assert.equal(registrationSchema.safeParse({...parent,user_type:'admin'}).success,false);assert.equal(getAccountDestination('teacher'),'/become-tutor');});
+test('coordinates accept the equator and reject missing or impossible values',()=>{assert.equal(hasSchoolCoordinates({latitude:0,longitude:0}),true);for(const point of [{latitude:null,longitude:11},{latitude:91,longitude:11},{latitude:3,longitude:NaN}])assert.equal(hasSchoolCoordinates(point),false);});
+test('nearby school distance is symmetric, finite and zero at same point',()=>{const yaounde={latitude:3.848,longitude:11.502};const douala={latitude:4.051,longitude:9.767};assert.equal(distanceKm(yaounde,yaounde),0);assert.ok(distanceKm(yaounde,douala)>190&&distanceKm(yaounde,douala)<200);assert.equal(distanceKm(yaounde,douala),distanceKm(douala,yaounde));});
