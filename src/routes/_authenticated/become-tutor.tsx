@@ -103,7 +103,8 @@ function ApplicationPage() {
                     "Your application is saved. Contact Josh & Co to request changes.",
                   )}
             </p>
-            <Link to="/contact" className="mt-4 inline-block text-primary font-semibold">
+            <Link to="/learning" className="mr-4 mt-4 inline-block text-primary font-semibold">{tr("Mes séances", "My lessons")}</Link>
+          <Link to="/contact" className="mt-4 inline-block text-primary font-semibold">
               Contact
             </Link>
           </div>

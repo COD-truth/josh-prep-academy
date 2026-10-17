@@ -52,6 +52,7 @@ function ParentPage() {
             </Link>
           ))}
         </div>
+        <Link to="/learning" className="mt-8 inline-block rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{tr("Voir les séances, bilans et quiz", "See lessons, reports and quizzes")}</Link>
         <section className="mt-12">
           <h2 className="text-2xl font-semibold">
             {tr("Mes réservations familiales", "My family bookings")}

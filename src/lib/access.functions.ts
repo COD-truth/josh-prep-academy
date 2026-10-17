@@ -42,7 +42,16 @@ export const listExamPapers = createServerFn({ method: "GET" })
       .eq("is_active", true)
       .order("year", { ascending: false });
     if (error) throw error;
-    return (data ?? []) as { id: string; title: string; subject: string; level: string; year: number; file_url: string | null; has_solution: boolean; language: string }[];
+    return (data ?? []) as {
+      id: string;
+      title: string;
+      subject: string;
+      level: string;
+      year: number;
+      file_url: string | null;
+      has_solution: boolean;
+      language: string;
+    }[];
   });
 
 /** Submit a Mobile Money payment for verification. */
@@ -90,7 +99,9 @@ export const submitPayment = createServerFn({ method: "POST" })
       .single();
     if (error) {
       if (/duplicate|unique/i.test(error.message)) {
-        throw new Error("Cet identifiant de transaction a déjà été soumis. / This transaction ID was already submitted.");
+        throw new Error(
+          "Cet identifiant de transaction a déjà été soumis. / This transaction ID was already submitted.",
+        );
       }
       throw error;
     }
@@ -102,7 +113,9 @@ export const listMyPayments = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("payments")
-      .select("id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, name_en)")
+      .select(
+        "id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, name_en)",
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -130,7 +143,9 @@ export const adminListPayments = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Forbidden");
     const { data, error } = await supabase
       .from("payments")
-      .select("id, user_id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, duration_days)")
+      .select(
+        "id, user_id, provider, phone, amount_xaf, transaction_ref, status, created_at, plan:subscription_plans(name_fr, duration_days)",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw error;
@@ -156,11 +171,23 @@ export const reviewPayment = createServerFn({ method: "POST" })
 
     const { data: pay, error: payErr } = await supabase
       .from("payments")
-      .select("id, user_id, plan_id, status, plan:subscription_plans(duration_days)")
+      .select("id, user_id, booking_id, plan_id, status, plan:subscription_plans(duration_days)")
       .eq("id", data.paymentId)
       .maybeSingle();
     if (payErr || !pay) throw new Error("Payment not found");
     if (pay.status !== "pending") throw new Error("Already processed");
+    if (pay.booking_id) {
+      const { error } = await supabase.rpc(
+        "review_lesson_payment" as never,
+        {
+          _payment: pay.id,
+          _approve: data.action === "approve",
+          _notes: data.notes ?? null,
+        } as never,
+      );
+      if (error) throw error;
+      return { ok: true };
+    }
     if (!pay.plan_id) throw new Error("Payment has no plan attached");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -168,7 +195,12 @@ export const reviewPayment = createServerFn({ method: "POST" })
     if (data.action === "reject") {
       await supabaseAdmin
         .from("payments")
-        .update({ status: "rejected", notes: data.notes, verified_at: new Date().toISOString(), verified_by: userId })
+        .update({
+          status: "rejected",
+          notes: data.notes,
+          verified_at: new Date().toISOString(),
+          verified_by: userId,
+        })
         .eq("id", pay.id);
       return { ok: true };
     }
@@ -185,7 +217,12 @@ export const reviewPayment = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("payments")
-      .update({ status: "verified", notes: data.notes, verified_at: now.toISOString(), verified_by: userId })
+      .update({
+        status: "verified",
+        notes: data.notes,
+        verified_at: now.toISOString(),
+        verified_by: userId,
+      })
       .eq("id", pay.id);
     return { ok: true };
   });
@@ -210,17 +247,19 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
 export const adminSaveExamPaper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({
-      title: z.string().min(3),
-      title_en: z.string().optional(),
-      subject: z.string().min(1),
-      level: z.string().min(1),
-      year: z.number().int().min(2000).max(2030),
-      language: z.enum(["fr", "en", "both"]),
-      has_solution: z.boolean(),
-      file_url: z.string().url(),
-      page_count: z.number().nullable().optional(),
-    }).parse(d),
+    z
+      .object({
+        title: z.string().min(3),
+        title_en: z.string().optional(),
+        subject: z.string().min(1),
+        level: z.string().min(1),
+        year: z.number().int().min(2000).max(2030),
+        language: z.enum(["fr", "en", "both"]),
+        has_solution: z.boolean(),
+        file_url: z.string().url(),
+        page_count: z.number().nullable().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -249,37 +288,54 @@ const db = (supabase: any) => supabase as any;
 export const applyAsTutor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({
-      full_name: z.string().min(3),
-      phone: z.string().min(8).max(20),
-      subjects: z.array(z.string()).min(1),
-      levels: z.array(z.string()).min(1),
-      languages: z.array(z.string()).min(1),
-      experience_years: z.number().int().min(0).max(60),
-      residence: z.string().trim().min(3).max(200),
-      city: z.string().trim().min(2).max(80),
-      photo_url: z.string().url().startsWith("https://").optional(),
-      bio: z.string().min(20).max(800),
-      diploma: z.string().min(3).max(200),
-      hourly_rate_fcfa: z.number().int().min(1000).max(50000),
-    }).parse(d),
+    z
+      .object({
+        full_name: z.string().min(3),
+        phone: z.string().min(8).max(20),
+        subjects: z.array(z.string()).min(1),
+        levels: z.array(z.string()).min(1),
+        languages: z.array(z.string()).min(1),
+        experience_years: z.number().int().min(0).max(60),
+        residence: z.string().trim().min(3).max(200),
+        city: z.string().trim().min(2).max(80),
+        photo_url: z.string().url().startsWith("https://").optional(),
+        bio: z.string().min(20).max(800),
+        diploma: z.string().min(3).max(200),
+        hourly_rate_fcfa: z.number().int().min(1000).max(50000),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const s = db(supabase);
-    const { data: existing } = await s.from("tutor_applications").select("id, status").eq("user_id", userId).maybeSingle();
-    if (existing) throw new Error(
-      existing.status === "pending"
-        ? "Candidature déjà en cours. / Application already pending."
-        : existing.status === "approved"
-        ? "Vous êtes déjà tuteur. / You are already a tutor."
-        : "Candidature déjà soumise. / Application already submitted."
-    );
+    const { data: existing } = await s
+      .from("tutor_applications")
+      .select("id, status")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (existing)
+      throw new Error(
+        existing.status === "pending"
+          ? "Candidature déjà en cours. / Application already pending."
+          : existing.status === "approved"
+            ? "Vous êtes déjà tuteur. / You are already a tutor."
+            : "Candidature déjà soumise. / Application already submitted.",
+      );
     const { error } = await s.from("tutor_applications").insert({
-      user_id: userId, full_name: data.full_name, phone: data.phone,
-      subjects: data.subjects, levels: data.levels, languages: data.languages,
-      experience_years: data.experience_years, bio: data.bio,
-      diploma: data.diploma, hourly_rate_fcfa: data.hourly_rate_fcfa, residence: data.residence, city: data.city, photo_url: data.photo_url ?? null, status: "pending",
+      user_id: userId,
+      full_name: data.full_name,
+      phone: data.phone,
+      subjects: data.subjects,
+      levels: data.levels,
+      languages: data.languages,
+      experience_years: data.experience_years,
+      bio: data.bio,
+      diploma: data.diploma,
+      hourly_rate_fcfa: data.hourly_rate_fcfa,
+      residence: data.residence,
+      city: data.city,
+      photo_url: data.photo_url ?? null,
+      status: "pending",
     });
     if (error) throw error;
     return { ok: true };
@@ -290,7 +346,11 @@ export const getMyApplication = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const s = db(context.supabase);
-    const { data, error } = await s.from("tutor_applications").select("id, status, created_at, subjects, levels").eq("user_id", context.userId).maybeSingle();
+    const { data, error } = await s
+      .from("tutor_applications")
+      .select("id, status, created_at, subjects, levels")
+      .eq("user_id", context.userId)
+      .maybeSingle();
     if (error) throw error;
     return data ?? null;
   });
@@ -303,8 +363,11 @@ export const adminListApplications = createServerFn({ method: "GET" })
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
     if (!isAdmin) throw new Error("Forbidden");
     const s = db(supabase);
-    const { data, error } = await s.from("tutor_applications")
-      .select("id, full_name, phone, subjects, levels, languages, experience_years, residence, city, photo_url, bio, diploma, hourly_rate_fcfa, status, created_at")
+    const { data, error } = await s
+      .from("tutor_applications")
+      .select(
+        "id, full_name, phone, subjects, levels, languages, experience_years, residence, city, photo_url, bio, diploma, hourly_rate_fcfa, status, created_at",
+      )
       .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
@@ -314,10 +377,12 @@ export const adminListApplications = createServerFn({ method: "GET" })
 export const reviewApplication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({
-      applicationId: z.string().uuid(),
-      action: z.enum(["approved", "rejected"]),
-    }).parse(d),
+    z
+      .object({
+        applicationId: z.string().uuid(),
+        action: z.enum(["approved", "rejected"]),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -325,7 +390,8 @@ export const reviewApplication = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const s = db(supabaseAdmin);
-    const { error } = await s.from("tutor_applications")
+    const { error } = await s
+      .from("tutor_applications")
       .update({ status: data.action, reviewed_by: userId, reviewed_at: new Date().toISOString() })
       .eq("id", data.applicationId);
     if (error) throw error;
@@ -356,13 +422,17 @@ export const getMyAvailability = createServerFn({ method: "GET" })
 export const saveMyAvailability = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({
-      slots: z.array(z.object({
-        weekday: z.number().int().min(0).max(6),
-        start_time: z.string(),
-        end_time: z.string(),
-      })),
-    }).parse(d)
+    z
+      .object({
+        slots: z.array(
+          z.object({
+            weekday: z.number().int().min(0).max(6),
+            start_time: z.string(),
+            end_time: z.string(),
+          }),
+        ),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -375,13 +445,10 @@ export const saveMyAvailability = createServerFn({ method: "POST" })
     await supabase.from("tutor_availability").delete().eq("tutor_id", tutor.id);
     if (data.slots.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any).from("tutor_availability").insert(
-        data.slots.map(s => ({ tutor_id: tutor.id, ...s }))
-      );
+      const { error } = await (supabase as any)
+        .from("tutor_availability")
+        .insert(data.slots.map((s) => ({ tutor_id: tutor.id, ...s })));
       if (error) throw error;
     }
     return { ok: true };
   });
-
-
-

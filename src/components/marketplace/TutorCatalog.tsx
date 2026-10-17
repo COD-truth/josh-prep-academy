@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Search, SlidersHorizontal, GraduationCap, Languages } from "lucide-react";
-import { listActiveTutors } from "@/lib/booking.functions";
+import { publicTutors } from "@/lib/public-tutors";
 import { searchTutors } from "@/lib/tutor-search";
 import type { Lang } from "@/lib/i18n";
 
@@ -19,10 +19,11 @@ export function TutorCatalog({
   compact?: boolean;
 }) {
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
-  const fetchTutors = useServerFn(listActiveTutors);
+
   const tutors = useQuery({
     queryKey: ["tutors-active"],
-    queryFn: () => fetchTutors(),
+    queryFn: () => publicTutors(),
+    retry: false,
     staleTime: 60_000,
   });
   const [query, setQuery] = useState(initialQuery);
@@ -259,6 +260,13 @@ export function TutorCatalog({
                       </p>
                     )}
                     <div className="mt-auto pt-6">
+                      <Link
+                        to="/tutors/$tutorId"
+                        params={{ tutorId: tutor.id }}
+                        className="mb-4 inline-block font-semibold text-primary underline underline-offset-4"
+                      >
+                        {tr("Profil détaillé et avis", "Full profile and reviews")}
+                      </Link>
                       <p className="text-2xl font-semibold">
                         {tutor.hourly_rate_fcfa.toLocaleString(lang === "fr" ? "fr-FR" : "en-GB")}{" "}
                         <span className="text-xs font-normal text-muted-foreground">FCFA / h</span>

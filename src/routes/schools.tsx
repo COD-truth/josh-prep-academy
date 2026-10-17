@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, LayerGroup } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { hasSchoolCoordinates, distanceKm } from "@/lib/school-map";
+import { withTimeout } from "@/lib/request-timeout";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Search, SlidersHorizontal, School, X, ExternalLink, Phone } from "lucide-react";
 
@@ -253,15 +254,20 @@ function SchoolsPage() {
   const layers = useRef<LayerGroup | null>(null);
   const [leaflet, setLeaflet] = useState<typeof import("leaflet") | null>(null);
   const [mapError, setMapError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
   useEffect(() => {
     let alive = true;
+    setLoading(true);
+    setError("");
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from("schools" as never)
-          .select("*")
-          .eq("is_active", true)
-          .order("name");
+        const { data, error } = await withTimeout(
+          supabase
+            .from("schools" as never)
+            .select("*")
+            .eq("is_active", true)
+            .order("name"),
+        );
         if (error) throw error;
         if (alive) setSchools((data ?? []) as unknown as School[]);
       } catch (error) {
@@ -273,7 +279,7 @@ function SchoolsPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [loadAttempt]);
   const filtered = useMemo(
     () =>
       schools
@@ -593,12 +599,21 @@ function SchoolsPage() {
                 "Annuaire indisponible. Contactez Josh & Co pour être orienté.",
                 "Directory unavailable. Contact Josh & Co for guidance.",
               )}
+              <button
+                type="button"
+                onClick={() => setLoadAttempt((value) => value + 1)}
+                className="ml-3 font-semibold text-primary underline"
+              >
+                {tr("Réessayer", "Retry")}
+              </button>
             </p>
           )}
           <p role="status" className="mt-6 text-sm text-muted-foreground">
             {loading
               ? tr("Chargement…", "Loading…")
-              : `${filtered.length} ${tr("établissement(s)", "school(s)")}`}
+              : error
+                ? tr("Résultats indisponibles", "Results unavailable")
+                : `${filtered.length} ${tr("établissement(s)", "school(s)")}`}
           </p>
           <div className="mt-4 grid gap-5 lg:grid-cols-[360px_1fr]">
             <div className="space-y-3 max-h-[420px] lg:max-h-[600px] overflow-y-auto">

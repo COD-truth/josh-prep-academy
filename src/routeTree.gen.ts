@@ -9,9 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TutorsRouteImport } from './routes/tutors'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as SchoolsRouteImport } from './routes/schools'
+import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as MatieresRouteImport } from './routes/matieres'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as CoursRouteImport } from './routes/cours'
@@ -21,21 +21,20 @@ import { Route as BanqueEpreuvesRouteImport } from './routes/banque-epreuves'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TutorsIndexRouteImport } from './routes/tutors.index'
+import { Route as TutorsTutorIdRouteImport } from './routes/tutors.$tutorId'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
 import { Route as AuthenticatedParentRouteImport } from './routes/_authenticated/parent'
+import { Route as AuthenticatedLearningRouteImport } from './routes/_authenticated/learning'
 import { Route as AuthenticatedExamsRouteImport } from './routes/_authenticated/exams'
 import { Route as AuthenticatedDirectoryRouteImport } from './routes/_authenticated/directory'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
 import { Route as AuthenticatedBecomeTutorRouteImport } from './routes/_authenticated/become-tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedLessonsBookingIdRouteImport } from './routes/_authenticated/lessons.$bookingId'
 import { Route as ApiPublicWebhooksMobileMoneyRouteImport } from './routes/api/public/webhooks/mobile-money'
 
-const TutorsRoute = TutorsRouteImport.update({
-  id: '/tutors',
-  path: '/tutors',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TarifsRoute = TarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
@@ -44,6 +43,11 @@ const TarifsRoute = TarifsRouteImport.update({
 const SchoolsRoute = SchoolsRouteImport.update({
   id: '/schools',
   path: '/schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatieresRoute = MatieresRouteImport.update({
@@ -90,6 +94,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TutorsIndexRoute = TutorsIndexRouteImport.update({
+  id: '/tutors/',
+  path: '/tutors/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TutorsTutorIdRoute = TutorsTutorIdRouteImport.update({
+  id: '/tutors/$tutorId',
+  path: '/tutors/$tutorId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSubscribeRoute = AuthenticatedSubscribeRouteImport.update({
   id: '/subscribe',
   path: '/subscribe',
@@ -98,6 +112,11 @@ const AuthenticatedSubscribeRoute = AuthenticatedSubscribeRouteImport.update({
 const AuthenticatedParentRoute = AuthenticatedParentRouteImport.update({
   id: '/parent',
   path: '/parent',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLearningRoute = AuthenticatedLearningRouteImport.update({
+  id: '/learning',
+  path: '/learning',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExamsRoute = AuthenticatedExamsRouteImport.update({
@@ -131,6 +150,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLessonsBookingIdRoute =
+  AuthenticatedLessonsBookingIdRouteImport.update({
+    id: '/lessons/$bookingId',
+    path: '/lessons/$bookingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksMobileMoneyRoute =
   ApiPublicWebhooksMobileMoneyRouteImport.update({
     id: '/api/public/webhooks/mobile-money',
@@ -147,17 +172,21 @@ export interface FileRoutesByFullPath {
   '/cours': typeof CoursRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
+  '/mobile': typeof MobileRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
-  '/tutors': typeof TutorsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/directory': typeof AuthenticatedDirectoryRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/learning': typeof AuthenticatedLearningRoute
   '/parent': typeof AuthenticatedParentRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/tutors/$tutorId': typeof TutorsTutorIdRoute
+  '/tutors/': typeof TutorsIndexRoute
+  '/lessons/$bookingId': typeof AuthenticatedLessonsBookingIdRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRoutesByTo {
@@ -169,17 +198,21 @@ export interface FileRoutesByTo {
   '/cours': typeof CoursRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
+  '/mobile': typeof MobileRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
-  '/tutors': typeof TutorsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/directory': typeof AuthenticatedDirectoryRoute
   '/exams': typeof AuthenticatedExamsRoute
+  '/learning': typeof AuthenticatedLearningRoute
   '/parent': typeof AuthenticatedParentRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/tutors/$tutorId': typeof TutorsTutorIdRoute
+  '/tutors': typeof TutorsIndexRoute
+  '/lessons/$bookingId': typeof AuthenticatedLessonsBookingIdRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRoutesById {
@@ -193,17 +226,21 @@ export interface FileRoutesById {
   '/cours': typeof CoursRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
+  '/mobile': typeof MobileRoute
   '/schools': typeof SchoolsRoute
   '/tarifs': typeof TarifsRoute
-  '/tutors': typeof TutorsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/become-tutor': typeof AuthenticatedBecomeTutorRoute
   '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/directory': typeof AuthenticatedDirectoryRoute
   '/_authenticated/exams': typeof AuthenticatedExamsRoute
+  '/_authenticated/learning': typeof AuthenticatedLearningRoute
   '/_authenticated/parent': typeof AuthenticatedParentRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
+  '/tutors/$tutorId': typeof TutorsTutorIdRoute
+  '/tutors/': typeof TutorsIndexRoute
+  '/_authenticated/lessons/$bookingId': typeof AuthenticatedLessonsBookingIdRoute
   '/api/public/webhooks/mobile-money': typeof ApiPublicWebhooksMobileMoneyRoute
 }
 export interface FileRouteTypes {
@@ -217,17 +254,21 @@ export interface FileRouteTypes {
     | '/cours'
     | '/guide'
     | '/matieres'
+    | '/mobile'
     | '/schools'
     | '/tarifs'
-    | '/tutors'
     | '/admin'
     | '/become-tutor'
     | '/book'
     | '/dashboard'
     | '/directory'
     | '/exams'
+    | '/learning'
     | '/parent'
     | '/subscribe'
+    | '/tutors/$tutorId'
+    | '/tutors/'
+    | '/lessons/$bookingId'
     | '/api/public/webhooks/mobile-money'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -239,17 +280,21 @@ export interface FileRouteTypes {
     | '/cours'
     | '/guide'
     | '/matieres'
+    | '/mobile'
     | '/schools'
     | '/tarifs'
-    | '/tutors'
     | '/admin'
     | '/become-tutor'
     | '/book'
     | '/dashboard'
     | '/directory'
     | '/exams'
+    | '/learning'
     | '/parent'
     | '/subscribe'
+    | '/tutors/$tutorId'
+    | '/tutors'
+    | '/lessons/$bookingId'
     | '/api/public/webhooks/mobile-money'
   id:
     | '__root__'
@@ -262,17 +307,21 @@ export interface FileRouteTypes {
     | '/cours'
     | '/guide'
     | '/matieres'
+    | '/mobile'
     | '/schools'
     | '/tarifs'
-    | '/tutors'
     | '/_authenticated/admin'
     | '/_authenticated/become-tutor'
     | '/_authenticated/book'
     | '/_authenticated/dashboard'
     | '/_authenticated/directory'
     | '/_authenticated/exams'
+    | '/_authenticated/learning'
     | '/_authenticated/parent'
     | '/_authenticated/subscribe'
+    | '/tutors/$tutorId'
+    | '/tutors/'
+    | '/_authenticated/lessons/$bookingId'
     | '/api/public/webhooks/mobile-money'
   fileRoutesById: FileRoutesById
 }
@@ -286,21 +335,16 @@ export interface RootRouteChildren {
   CoursRoute: typeof CoursRoute
   GuideRoute: typeof GuideRoute
   MatieresRoute: typeof MatieresRoute
+  MobileRoute: typeof MobileRoute
   SchoolsRoute: typeof SchoolsRoute
   TarifsRoute: typeof TarifsRoute
-  TutorsRoute: typeof TutorsRoute
+  TutorsTutorIdRoute: typeof TutorsTutorIdRoute
+  TutorsIndexRoute: typeof TutorsIndexRoute
   ApiPublicWebhooksMobileMoneyRoute: typeof ApiPublicWebhooksMobileMoneyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tutors': {
-      id: '/tutors'
-      path: '/tutors'
-      fullPath: '/tutors'
-      preLoaderRoute: typeof TutorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/tarifs': {
       id: '/tarifs'
       path: '/tarifs'
@@ -313,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/schools'
       fullPath: '/schools'
       preLoaderRoute: typeof SchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matieres': {
@@ -378,6 +429,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tutors/': {
+      id: '/tutors/'
+      path: '/tutors'
+      fullPath: '/tutors/'
+      preLoaderRoute: typeof TutorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutors/$tutorId': {
+      id: '/tutors/$tutorId'
+      path: '/tutors/$tutorId'
+      fullPath: '/tutors/$tutorId'
+      preLoaderRoute: typeof TutorsTutorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/subscribe': {
       id: '/_authenticated/subscribe'
       path: '/subscribe'
@@ -390,6 +455,13 @@ declare module '@tanstack/react-router' {
       path: '/parent'
       fullPath: '/parent'
       preLoaderRoute: typeof AuthenticatedParentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/learning': {
+      id: '/_authenticated/learning'
+      path: '/learning'
+      fullPath: '/learning'
+      preLoaderRoute: typeof AuthenticatedLearningRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/exams': {
@@ -434,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lessons/$bookingId': {
+      id: '/_authenticated/lessons/$bookingId'
+      path: '/lessons/$bookingId'
+      fullPath: '/lessons/$bookingId'
+      preLoaderRoute: typeof AuthenticatedLessonsBookingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/mobile-money': {
       id: '/api/public/webhooks/mobile-money'
       path: '/api/public/webhooks/mobile-money'
@@ -451,8 +530,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDirectoryRoute: typeof AuthenticatedDirectoryRoute
   AuthenticatedExamsRoute: typeof AuthenticatedExamsRoute
+  AuthenticatedLearningRoute: typeof AuthenticatedLearningRoute
   AuthenticatedParentRoute: typeof AuthenticatedParentRoute
   AuthenticatedSubscribeRoute: typeof AuthenticatedSubscribeRoute
+  AuthenticatedLessonsBookingIdRoute: typeof AuthenticatedLessonsBookingIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -462,8 +543,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDirectoryRoute: AuthenticatedDirectoryRoute,
   AuthenticatedExamsRoute: AuthenticatedExamsRoute,
+  AuthenticatedLearningRoute: AuthenticatedLearningRoute,
   AuthenticatedParentRoute: AuthenticatedParentRoute,
   AuthenticatedSubscribeRoute: AuthenticatedSubscribeRoute,
+  AuthenticatedLessonsBookingIdRoute: AuthenticatedLessonsBookingIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -479,9 +562,11 @@ const rootRouteChildren: RootRouteChildren = {
   CoursRoute: CoursRoute,
   GuideRoute: GuideRoute,
   MatieresRoute: MatieresRoute,
+  MobileRoute: MobileRoute,
   SchoolsRoute: SchoolsRoute,
   TarifsRoute: TarifsRoute,
-  TutorsRoute: TutorsRoute,
+  TutorsTutorIdRoute: TutorsTutorIdRoute,
+  TutorsIndexRoute: TutorsIndexRoute,
   ApiPublicWebhooksMobileMoneyRoute: ApiPublicWebhooksMobileMoneyRoute,
 }
 export const routeTree = rootRouteImport

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth")({
     search: Record<string, unknown>,
   ): { next?: string; mode?: "signup"; role?: "parent" | "teacher" | "student" } => ({
     next:
-      typeof search.next === "string" && /^\/book(?:\?|$)/.test(search.next)
+      typeof search.next === "string" && /^\/(?:book(?:\?|$)|learning(?:\?|$)|lessons\/[0-9a-f-]{36}(?:\?|$))/.test(search.next)
         ? search.next
         : undefined,
     mode: search.mode === "signup" ? "signup" : undefined,
