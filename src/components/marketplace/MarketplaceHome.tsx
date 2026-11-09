@@ -89,7 +89,7 @@ export function MarketplaceHome() {
               <p className="mt-4 text-sm text-white/70">
                 {tr("Vous préférez être conseillé ?", "Prefer some guidance?")}{" "}
                 <Link
-                  to="/contact"
+                  to="/demander"
                   className="font-semibold text-accent underline underline-offset-4"
                 >
                   {tr("Parlons de votre besoin", "Tell us what you need")}

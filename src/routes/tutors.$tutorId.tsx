@@ -141,6 +141,13 @@ function TutorProfile() {
                   )}
                 </p>
                 <Link
+                  to="/demander"
+                  search={{ tutor: tutor.full_name }}
+                  className="mb-3 inline-flex rounded-xl border border-primary px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-soft"
+                >
+                  {tr("Demander sur WhatsApp", "Request on WhatsApp")}
+                </Link>
+                <Link
                   to="/book"
                   search={{ tutor: tutor.id }}
                   className="mt-6 block text-center rounded-xl bg-primary py-3 font-semibold text-primary-foreground"

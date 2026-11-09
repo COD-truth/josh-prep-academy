@@ -6,7 +6,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Josh & Co — Soutien scolaire & préparation aux concours" },
-      { name: "description", content: "Plateforme bilingue FR/EN. Tuteurs experts, banque d'épreuves, paiement Mobile Money et intégration Google Classroom." },
+      { name: "description", content: "Plateforme bilingue FR/EN. Tuteurs experts, banque d'épreuves, demandes de cours sur WhatsApp et liens de cours en ligne." },
       { property: "og:title", content: "Josh & Co — Excellence académique" },
       { property: "og:description", content: "Soutien scolaire & préparation aux concours par le Dr. Josh et son équipe." },
       { property: "og:image", content: brandHero },

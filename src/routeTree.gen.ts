@@ -14,6 +14,7 @@ import { Route as SchoolsRouteImport } from './routes/schools'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as MatieresRouteImport } from './routes/matieres'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as DemanderRouteImport } from './routes/demander'
 import { Route as CoursRouteImport } from './routes/cours'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConcoursRouteImport } from './routes/concours'
@@ -58,6 +59,11 @@ const MatieresRoute = MatieresRouteImport.update({
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemanderRoute = DemanderRouteImport.update({
+  id: '/demander',
+  path: '/demander',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursRoute = CoursRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/demander': typeof DemanderRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/mobile': typeof MobileRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/demander': typeof DemanderRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/mobile': typeof MobileRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/concours': typeof ConcoursRoute
   '/contact': typeof ContactRoute
   '/cours': typeof CoursRoute
+  '/demander': typeof DemanderRoute
   '/guide': typeof GuideRoute
   '/matieres': typeof MatieresRoute
   '/mobile': typeof MobileRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/concours'
     | '/contact'
     | '/cours'
+    | '/demander'
     | '/guide'
     | '/matieres'
     | '/mobile'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/concours'
     | '/contact'
     | '/cours'
+    | '/demander'
     | '/guide'
     | '/matieres'
     | '/mobile'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/concours'
     | '/contact'
     | '/cours'
+    | '/demander'
     | '/guide'
     | '/matieres'
     | '/mobile'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   ConcoursRoute: typeof ConcoursRoute
   ContactRoute: typeof ContactRoute
   CoursRoute: typeof CoursRoute
+  DemanderRoute: typeof DemanderRoute
   GuideRoute: typeof GuideRoute
   MatieresRoute: typeof MatieresRoute
   MobileRoute: typeof MobileRoute
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/guide'
       preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demander': {
+      id: '/demander'
+      path: '/demander'
+      fullPath: '/demander'
+      preLoaderRoute: typeof DemanderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cours': {
@@ -560,6 +580,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConcoursRoute: ConcoursRoute,
   ContactRoute: ContactRoute,
   CoursRoute: CoursRoute,
+  DemanderRoute: DemanderRoute,
   GuideRoute: GuideRoute,
   MatieresRoute: MatieresRoute,
   MobileRoute: MobileRoute,

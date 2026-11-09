@@ -166,7 +166,7 @@ export function TutorCatalog({
             <button onClick={() => tutors.refetch()} className="font-semibold text-primary">
               {tr("Réessayer", "Try again")}
             </button>
-            <Link to="/contact" className="font-semibold text-primary">
+            <Link to="/demander" className="font-semibold text-primary">
               {tr("Nous contacter", "Contact us")}
             </Link>
           </div>
@@ -200,7 +200,7 @@ export function TutorCatalog({
                     {tr("Effacer les filtres", "Clear filters")}
                   </button>
                 )}
-                <Link to="/contact" className="font-semibold text-primary">
+                <Link to="/demander" className="font-semibold text-primary">
                   {tr("Être accompagné", "Get help")}
                 </Link>
               </div>
@@ -271,6 +271,13 @@ export function TutorCatalog({
                         {tutor.hourly_rate_fcfa.toLocaleString(lang === "fr" ? "fr-FR" : "en-GB")}{" "}
                         <span className="text-xs font-normal text-muted-foreground">FCFA / h</span>
                       </p>
+                      <Link
+                        to="/demander"
+                        search={{ tutor: tutor.full_name }}
+                        className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-primary px-5 py-3 text-sm font-semibold text-primary hover:bg-primary-soft"
+                      >
+                        {tr("Demander sur WhatsApp", "Request on WhatsApp")}
+                      </Link>
                       <Link
                         to="/book"
                         search={{ tutor: tutor.id }}

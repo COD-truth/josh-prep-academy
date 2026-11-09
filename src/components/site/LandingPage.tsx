@@ -63,6 +63,7 @@ export function Nav({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void 
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = [
+    { to: "/demander", label: lang === "fr" ? "Demander un cours" : "Request a lesson" },
     { to: "/cours", label: lang === "fr" ? "Trouver un prof" : "Find a tutor" },
     { to: "/banque-epreuves", label: lang === "fr" ? "Réviser" : "Revise" },
     { to: "/tarifs", label: lang === "fr" ? "Tarifs" : "Pricing" },
