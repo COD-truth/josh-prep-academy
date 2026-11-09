@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Provider build output (generated locally and by CI)
+.vercel/
+.netlify/

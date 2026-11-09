@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Josh & Co — Apprendre ensemble",
+  "short_name": "Josh & Co",
+  "description": "Cours particuliers, suivi des séances et orientation des familles.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#101a35",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Mes séances", "url": "/learning" },
+    { "name": "Trouver un répétiteur", "url": "/cours" },
+    { "name": "Assistant famille", "url": "/guide" }
+  ]
+}

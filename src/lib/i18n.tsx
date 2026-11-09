@@ -21,7 +21,7 @@ export const translations = {
     cta1: { fr: "Réserver un cours à domicile", en: "Book a home lesson" },
     cta2: { fr: "Accéder à la banque d'épreuves", en: "Access the exam bank" },
     stat1: { fr: "Taux de réussite", en: "Success rate" },
-    stat1v: { fr: "95% de réussite aux examens", en: "95% exam success rate" },
+    stat1v: { fr: "98,67 % de réussite aux examens", en: "98.67% exam success rate" },
   },
   subjects: {
     eyebrow: { fr: "PROGRAMMES", en: "PROGRAMS" },

@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LangProvider } from "../lib/i18n";
 import { AuthProvider } from "../lib/auth-context";
+import { MobileInstall } from "@/components/learning/MobileInstall";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -79,6 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
+      { name: "theme-color", content: "#101a35" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Josh & Co — Soutien scolaire & préparation aux concours" },
       { name: "description", content: "Plateforme bilingue d'excellence académique. Tuteurs experts, banque d'épreuves et préparation aux concours universitaires." },
@@ -90,6 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@JoshAndCo" },
     ],
     links: [
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -131,6 +136,7 @@ function RootComponent() {
         <AuthProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <MobileInstall />
           <Toaster richColors position="top-center" />
         </AuthProvider>
       </LangProvider>

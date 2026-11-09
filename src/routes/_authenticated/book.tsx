@@ -8,6 +8,12 @@ import { useLang } from "@/lib/i18n";
 import { Calendar, Clock, MapPin, Video, Home, Phone, X, Loader2, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/book")({
+  validateSearch: (search: Record<string, unknown>): { tutor?: string } => ({
+    tutor:
+      typeof search.tutor === "string" && /^[0-9a-f-]{36}$/i.test(search.tutor)
+        ? search.tutor
+        : undefined,
+  }),
   head: () => ({ meta: [{ title: "Réserver un cours — Josh & Co" }] }),
   component: BookPage,
 });
@@ -18,20 +24,27 @@ type Format = "home" | "online" | "office";
 
 // ── Payment Modal ──────────────────────────────────────────────
 function PaymentModal({
-  amount, tutorName, onConfirm, onClose, lang,
+  amount,
+  tutorName,
+  onConfirm,
+  onClose,
+  lang,
 }: {
-  amount: number; tutorName: string;
+  amount: number;
+  tutorName: string;
   onConfirm: (data: { provider: "orange" | "mtn"; phone: string; transactionRef: string }) => void;
-  onClose: () => void; lang: "fr" | "en";
+  onClose: () => void;
+  lang: "fr" | "en";
 }) {
-  const tr = (fr: string, en: string) => lang === "fr" ? fr : en;
+  const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
   const [provider, setProvider] = useState<"orange" | "mtn">("orange");
   const [phone, setPhone] = useState("");
   const [ref, setRef] = useState("");
   const merchantNumber = provider === "orange" ? ORANGE_NUMBER : MTN_NUMBER;
   const canSubmit = phone.length >= 9 && ref.length >= 4;
 
-  const inp = "rounded-xl ring-1 ring-border bg-background px-4 py-2.5 text-sm focus:ring-primary focus:outline-none w-full";
+  const inp =
+    "rounded-xl ring-1 ring-border bg-background px-4 py-2.5 text-sm focus:ring-primary focus:outline-none w-full";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -52,7 +65,10 @@ function PaymentModal({
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
               {tr("Cours avec", "Lesson with")} {tutorName}
             </p>
-            <p className="text-3xl font-bold">{amount.toLocaleString("fr-FR")} <span className="text-lg font-normal text-muted-foreground">XAF</span></p>
+            <p className="text-3xl font-bold">
+              {amount.toLocaleString("fr-FR")}{" "}
+              <span className="text-lg font-normal text-muted-foreground">XAF</span>
+            </p>
           </div>
 
           {/* Operator */}
@@ -62,12 +78,17 @@ function PaymentModal({
             </p>
             <div className="grid grid-cols-2 gap-2">
               {(["orange", "mtn"] as const).map((op) => (
-                <button key={op} onClick={() => setProvider(op)}
+                <button
+                  key={op}
+                  onClick={() => setProvider(op)}
                   className={`rounded-xl py-3 text-sm font-bold border-2 transition ${
                     provider === op
-                      ? op === "orange" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      ? op === "orange"
+                        ? "border-orange-500 bg-orange-50 text-orange-700"
+                        : "border-yellow-500 bg-yellow-50 text-yellow-700"
                       : "border-border"
-                  }`}>
+                  }`}
+                >
                   {op === "orange" ? "🟠 Orange Money" : "🟡 MTN MoMo"}
                 </button>
               ))}
@@ -94,15 +115,23 @@ function PaymentModal({
               <label className="text-xs font-semibold text-muted-foreground mb-1 block">
                 {tr("Votre numéro Mobile Money *", "Your Mobile Money number *")}
               </label>
-              <input className={inp} value={phone} onChange={e => setPhone(e.target.value)}
-                placeholder="+237 6XX XX XX XX" />
+              <input
+                className={inp}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+237 6XX XX XX XX"
+              />
             </div>
             <div>
               <label className="text-xs font-semibold text-muted-foreground mb-1 block">
                 {tr("ID de transaction *", "Transaction ID *")}
               </label>
-              <input className={inp} value={ref} onChange={e => setRef(e.target.value)}
-                placeholder="MP240813.1234.ABCDE" />
+              <input
+                className={inp}
+                value={ref}
+                onChange={(e) => setRef(e.target.value)}
+                placeholder="MP240813.1234.ABCDE"
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {tr("Visible dans votre SMS de confirmation", "Found in your confirmation SMS")}
               </p>
@@ -117,7 +146,10 @@ function PaymentModal({
             {tr("Confirmer le paiement et la réservation", "Confirm payment & booking")}
           </button>
           <p className="text-xs text-center text-muted-foreground">
-            {tr("Votre réservation sera confirmée après vérification du paiement (sous 24h).", "Your booking will be confirmed after payment verification (within 24h).")}
+            {tr(
+              "Votre réservation sera confirmée après vérification du paiement (sous 24h).",
+              "Your booking will be confirmed after payment verification (within 24h).",
+            )}
           </p>
         </div>
       </div>
@@ -128,6 +160,7 @@ function PaymentModal({
 // ── Main Page ──────────────────────────────────────────────────
 function BookPage() {
   const { lang } = useLang();
+  const { tutor: requestedTutor } = Route.useSearch();
   const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
 
   const fetchTutors = useServerFn(listActiveTutors);
@@ -135,7 +168,7 @@ function BookPage() {
   const book = useServerFn(createBooking);
 
   const tutorsQ = useQuery({ queryKey: ["tutors-active"], queryFn: () => fetchTutors() });
-  const [tutorId, setTutorId] = useState<string | null>(null);
+  const [tutorId, setTutorId] = useState<string | null>(requestedTutor ?? null);
   const [dayISO, setDayISO] = useState<string | null>(null);
   const [timeHM, setTimeHM] = useState<string | null>(null);
   const [duration, setDuration] = useState(60);
@@ -158,7 +191,11 @@ function BookPage() {
       d.setHours(0, 0, 0, 0);
       out.push({
         iso: d.toISOString().slice(0, 10),
-        label: d.toLocaleDateString(lang === "fr" ? "fr-FR" : "en-GB", { weekday: "short", day: "2-digit", month: "short" }),
+        label: d.toLocaleDateString(lang === "fr" ? "fr-FR" : "en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+        }),
         weekday: d.getUTCDay(),
       });
     }
@@ -168,11 +205,14 @@ function BookPage() {
   const scheduleQ = useQuery({
     enabled: !!tutorId,
     queryKey: ["tutor-schedule", tutorId],
-    queryFn: () => fetchSchedule({ data: {
-      tutorId: tutorId!,
-      fromISO: new Date(days[0].iso + "T00:00:00.000Z").toISOString(),
-      toISO: new Date(days[days.length - 1].iso + "T23:59:59.999Z").toISOString(),
-    }}),
+    queryFn: () =>
+      fetchSchedule({
+        data: {
+          tutorId: tutorId!,
+          fromISO: new Date(days[0].iso + "T00:00:00.000Z").toISOString(),
+          toISO: new Date(days[days.length - 1].iso + "T23:59:59.999Z").toISOString(),
+        },
+      }),
   });
 
   const slotsForDay = useMemo(() => {
@@ -180,7 +220,11 @@ function BookPage() {
     const d = new Date(dayISO + "T00:00:00.000Z");
     const weekday = d.getUTCDay();
     const windows = scheduleQ.data.availability.filter((w) => w.weekday === weekday);
-    const busy = new Set(scheduleQ.data.busy.filter((b) => b.starts_at.slice(0, 10) === dayISO).map((b) => b.starts_at.slice(11, 16)));
+    const busy = new Set(
+      scheduleQ.data.busy
+        .filter((b) => b.starts_at.slice(0, 10) === dayISO)
+        .map((b) => b.starts_at.slice(11, 16)),
+    );
     const nowPlus1h = Date.now() + 60 * 60 * 1000;
     const out: { hm: string; disabled: boolean }[] = [];
     for (const w of windows) {
@@ -196,24 +240,45 @@ function BookPage() {
   }, [dayISO, scheduleQ.data, duration]);
 
   const bookMut = useMutation({
-    mutationFn: async (payment: { provider: "orange" | "mtn"; phone: string; transactionRef: string }) => {
-      if (!tutorId || !dayISO || !timeHM) throw new Error(tr("Sélectionnez un créneau", "Pick a slot"));
-      if (!subject || !level) throw new Error(tr("Matière et niveau requis", "Subject and level required"));
+    mutationFn: async (payment: {
+      provider: "orange" | "mtn";
+      phone: string;
+      transactionRef: string;
+    }) => {
+      if (!tutorId || !dayISO || !timeHM)
+        throw new Error(tr("Sélectionnez un créneau", "Pick a slot"));
+      if (!subject || !level)
+        throw new Error(tr("Matière et niveau requis", "Subject and level required"));
       const startsAt = new Date(`${dayISO}T${timeHM}:00.000Z`).toISOString();
-      return book({ data: {
-        tutorId, startsAt, durationMinutes: duration, subject, level, format,
-        address: format === "home" ? address : undefined,
-        notes: notes || undefined,
-        payment: { ...payment, amountXaf: estimatedAmount },
-      }});
+      return book({
+        data: {
+          tutorId,
+          startsAt,
+          durationMinutes: duration,
+          subject,
+          level,
+          format,
+          address: format === "home" ? address : undefined,
+          notes: notes || undefined,
+          payment: { ...payment, amountXaf: estimatedAmount },
+        },
+      });
     },
     onSuccess: () => {
-      toast.success(tr("Réservation créée ! Confirmation sous 24h après vérification du paiement.", "Booking created! Confirmation within 24h after payment verification."));
+      toast.success(
+        tr(
+          "Réservation créée ! Confirmation sous 24h après vérification du paiement.",
+          "Booking created! Confirmation within 24h after payment verification.",
+        ),
+      );
       setShowPayment(false);
       setTimeHM(null);
       scheduleQ.refetch();
     },
-    onError: (e: Error) => { toast.error(e.message); setShowPayment(false); },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setShowPayment(false);
+    },
   });
 
   const canProceed = !!tutorId && !!dayISO && !!timeHM && !!subject && !!level;
@@ -232,7 +297,9 @@ function BookPage() {
 
       <header className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/dashboard" className="text-sm font-semibold text-primary">← {tr("Tableau de bord", "Dashboard")}</Link>
+          <Link to="/dashboard" className="text-sm font-semibold text-primary">
+            ← {tr("Tableau de bord", "Dashboard")}
+          </Link>
           <h1 className="text-lg font-semibold">{tr("Réserver un cours", "Book a lesson")}</h1>
           <span />
         </div>
@@ -240,34 +307,67 @@ function BookPage() {
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 grid lg:grid-cols-[320px_1fr] gap-8">
         <aside className="space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{tr("1. Choisir un tuteur", "1. Pick a tutor")}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            {tr("1. Choisir un tuteur", "1. Pick a tutor")}
+          </p>
           <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
-            {tutorsQ.isLoading && <p className="text-sm text-muted-foreground">{tr("Chargement...", "Loading...")}</p>}
+            {tutorsQ.isLoading && (
+              <p className="text-sm text-muted-foreground">{tr("Chargement...", "Loading...")}</p>
+            )}
             {(tutorsQ.data?.length ?? 0) === 0 && !tutorsQ.isLoading && (
-              <p className="text-sm text-muted-foreground">{tr("Aucun tuteur disponible pour le moment.", "No tutors available yet.")}</p>
+              <p className="text-sm text-muted-foreground">
+                {tr("Aucun tuteur disponible pour le moment.", "No tutors available yet.")}
+              </p>
             )}
             {tutorsQ.data?.map((t) => (
-              <button key={t.id} onClick={() => { setTutorId(t.id); setDayISO(null); setTimeHM(null); }}
-                className={`w-full text-left rounded-2xl border p-4 transition ${tutorId === t.id ? "border-primary bg-primary-soft" : "border-border hover:border-primary/50"}`}>
+              <button
+                key={t.id}
+                onClick={() => {
+                  setTutorId(t.id);
+                  setDayISO(null);
+                  setTimeHM(null);
+                }}
+                className={`w-full text-left rounded-2xl border p-4 transition ${tutorId === t.id ? "border-primary bg-primary-soft" : "border-border hover:border-primary/50"}`}
+              >
                 <p className="font-semibold">{t.full_name}</p>
                 {t.title && <p className="text-xs text-muted-foreground">{t.title}</p>}
                 <p className="mt-1 text-xs">{(t.subjects ?? []).slice(0, 3).join(" · ")}</p>
-                <p className="mt-1 text-sm font-semibold text-primary">{t.hourly_rate_fcfa.toLocaleString()} FCFA/h</p>
+                <p className="mt-1 text-sm font-semibold text-primary">
+                  {t.hourly_rate_fcfa.toLocaleString()} FCFA/h
+                </p>
               </button>
             ))}
           </div>
         </aside>
 
         <section className="space-y-6">
-          {!tutor && <p className="text-muted-foreground">{tr("Sélectionnez un tuteur pour voir ses créneaux.", "Pick a tutor to see slots.")}</p>}
+          <p className="mb-3 text-xs text-muted-foreground">
+            {tr(
+              "Créneaux affichés en UTC · Cameroun : ajouter 1 heure.",
+              "Slots shown in UTC · Cameroon: add 1 hour.",
+            )}
+          </p>
+          {!tutor && (
+            <p className="text-muted-foreground">
+              {tr("Sélectionnez un tuteur pour voir ses créneaux.", "Pick a tutor to see slots.")}
+            </p>
+          )}
           {tutor && (
             <>
               <div className="rounded-3xl border border-border p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2"><Calendar className="size-4" /> {tr("2. Date", "2. Date")}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                  <Calendar className="size-4" /> {tr("2. Date", "2. Date")}
+                </p>
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {days.map((d) => (
-                    <button key={d.iso} onClick={() => { setDayISO(d.iso); setTimeHM(null); }}
-                      className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition ${dayISO === d.iso ? "bg-primary text-primary-foreground ring-primary" : "ring-border hover:ring-primary"}`}>
+                    <button
+                      key={d.iso}
+                      onClick={() => {
+                        setDayISO(d.iso);
+                        setTimeHM(null);
+                      }}
+                      className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium ring-1 transition ${dayISO === d.iso ? "bg-primary text-primary-foreground ring-primary" : "ring-border hover:ring-primary"}`}
+                    >
                       {d.label}
                     </button>
                   ))}
@@ -275,23 +375,47 @@ function BookPage() {
               </div>
 
               <div className="rounded-3xl border border-border p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2"><Clock className="size-4" /> {tr("3. Heure", "3. Time")}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                  <Clock className="size-4" /> {tr("3. Heure", "3. Time")}
+                </p>
                 <div className="mb-3 flex gap-2">
                   {[60, 90, 120].map((m) => (
-                    <button key={m} onClick={() => { setDuration(m); setTimeHM(null); }}
-                      className={`rounded-lg px-3 py-1.5 text-sm ring-1 ${duration === m ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>
+                    <button
+                      key={m}
+                      onClick={() => {
+                        setDuration(m);
+                        setTimeHM(null);
+                      }}
+                      className={`rounded-lg px-3 py-1.5 text-sm ring-1 ${duration === m ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}
+                    >
                       {m} min
                     </button>
                   ))}
                 </div>
-                {!dayISO && <p className="text-sm text-muted-foreground">{tr("Choisissez une date.", "Pick a date.")}</p>}
-                {dayISO && slotsForDay.length === 0 && <p className="text-sm text-muted-foreground">{tr("Aucun créneau ce jour.", "No slots this day.")}</p>}
+                {!dayISO && (
+                  <p className="text-sm text-muted-foreground">
+                    {tr("Choisissez une date.", "Pick a date.")}
+                  </p>
+                )}
+                {dayISO && slotsForDay.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    {tr("Aucun créneau ce jour.", "No slots this day.")}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {slotsForDay.map((s) => (
-                    <button key={s.hm} disabled={s.disabled} onClick={() => setTimeHM(s.hm)}
+                    <button
+                      key={s.hm}
+                      disabled={s.disabled}
+                      onClick={() => setTimeHM(s.hm)}
                       className={`rounded-lg px-3.5 py-2 text-sm font-semibold ring-1 transition ${
-                        s.disabled ? "opacity-40 cursor-not-allowed ring-border" :
-                        timeHM === s.hm ? "bg-primary-soft text-primary ring-primary" : "ring-border hover:ring-primary"}`}>
+                        s.disabled
+                          ? "opacity-40 cursor-not-allowed ring-border"
+                          : timeHM === s.hm
+                            ? "bg-primary-soft text-primary ring-primary"
+                            : "ring-border hover:ring-primary"
+                      }`}
+                    >
                       {s.hm}
                     </button>
                   ))}
@@ -299,52 +423,88 @@ function BookPage() {
               </div>
 
               <div className="rounded-3xl border border-border p-5 space-y-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{tr("4. Détails", "4. Details")}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {tr("4. Détails", "4. Details")}
+                </p>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <input value={subject} onChange={(e) => setSubject(e.target.value)}
+                  <input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     placeholder={tr("Matière (Maths, Physique...)", "Subject (Math, Physics...)")}
-                    className="rounded-lg border border-border px-3 py-2 text-sm" />
-                  <input value={level} onChange={(e) => setLevel(e.target.value)}
+                    className="rounded-lg border border-border px-3 py-2 text-sm"
+                  />
+                  <input
+                    value={level}
+                    onChange={(e) => setLevel(e.target.value)}
                     placeholder={tr("Niveau (Terminale, Bac...)", "Level (Grade 12, A-Level...)")}
-                    className="rounded-lg border border-border px-3 py-2 text-sm" />
+                    className="rounded-lg border border-border px-3 py-2 text-sm"
+                  />
                 </div>
                 <div className="flex gap-2">
                   {(["online", "home", "office"] as Format[]).map((f) => {
                     const Icon = f === "online" ? Video : f === "home" ? Home : MapPin;
-                    const label = f === "online" ? tr("En ligne", "Online") : f === "home" ? tr("À domicile", "At home") : tr("Au bureau", "Office");
+                    const label =
+                      f === "online"
+                        ? tr("En ligne", "Online")
+                        : f === "home"
+                          ? tr("À domicile", "At home")
+                          : tr("Au bureau", "Office");
                     return (
-                      <button key={f} onClick={() => setFormat(f)}
-                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ring-1 ${format === f ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}>
+                      <button
+                        key={f}
+                        onClick={() => setFormat(f)}
+                        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ring-1 ${format === f ? "bg-primary-soft text-primary ring-primary" : "ring-border"}`}
+                      >
                         <Icon className="size-4" /> {label}
                       </button>
                     );
                   })}
                 </div>
                 {format === "home" && (
-                  <input value={address} onChange={(e) => setAddress(e.target.value)}
+                  <input
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                     placeholder={tr("Adresse", "Address")}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm" />
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm"
+                  />
                 )}
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                   placeholder={tr("Notes (optionnel)", "Notes (optional)")}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm" rows={2} />
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm"
+                  rows={2}
+                />
               </div>
 
               {/* Total + Pay button */}
               <div className="flex items-center justify-between rounded-3xl bg-secondary text-secondary-foreground p-5">
                 <div>
-                  <p className="text-xs opacity-70 uppercase tracking-wider">{tr("Total estimé", "Estimated total")}</p>
-                  <p className="text-2xl font-semibold">{estimatedAmount.toLocaleString()} <span className="text-base font-normal opacity-70">FCFA</span></p>
-                  <p className="text-xs opacity-60 mt-0.5">{tr("Paiement Mobile Money", "Mobile Money payment")}</p>
+                  <p className="text-xs opacity-70 uppercase tracking-wider">
+                    {tr("Total estimé", "Estimated total")}
+                  </p>
+                  <p className="text-2xl font-semibold">
+                    {estimatedAmount.toLocaleString()}{" "}
+                    <span className="text-base font-normal opacity-70">FCFA</span>
+                  </p>
+                  <p className="text-xs opacity-60 mt-0.5">
+                    {tr("Paiement Mobile Money", "Mobile Money payment")}
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowPayment(true)}
                   disabled={!canProceed || bookMut.isPending}
-                  className="rounded-xl bg-accent px-6 py-3 font-semibold text-accent-foreground disabled:opacity-50 flex items-center gap-2">
-                  {bookMut.isPending
-                    ? <><Loader2 className="size-4 animate-spin" /> {tr("Envoi...", "Sending...")}</>
-                    : <><CreditCard className="size-4" /> {tr("Payer & Réserver", "Pay & Book")}</>
-                  }
+                  className="rounded-xl bg-accent px-6 py-3 font-semibold text-accent-foreground disabled:opacity-50 flex items-center gap-2"
+                >
+                  {bookMut.isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" /> {tr("Envoi...", "Sending...")}
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="size-4" /> {tr("Payer & Réserver", "Pay & Book")}
+                    </>
+                  )}
                 </button>
               </div>
             </>
